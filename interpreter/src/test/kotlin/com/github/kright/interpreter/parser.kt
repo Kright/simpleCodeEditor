@@ -18,6 +18,14 @@ class ParserTest : FunSpec({
             .shouldBe(Program(listOf(VarDeclaration(Id("abc"), NInt(12)))))
     }
 
+    test("out expression") {
+        for(parser in arrayOf(nParser.outExpr, nParser.statement)) {
+            parser.parseToEnd("out 1") shouldBe OutExpr(NInt(1))
+            parser.parseToEnd("out id") shouldBe OutExpr(Id("id"))
+            parser.parseToEnd("out -1.3") shouldBe OutExpr(NReal(-1.3))
+        }
+    }
+
     test("id parsing") {
         for (parser in arrayOf(nParser.id, nParser.expression)) {
             for (name in arrayOf("id", "i", "i_2", "i2", "Word", "long_Word_12", "_1")) {
@@ -27,7 +35,7 @@ class ParserTest : FunSpec({
     }
 
     test("int parsing") {
-        for (parser in arrayOf(nParser.nInt, nParser.numberP)) {
+        for (parser in arrayOf(nParser.nInt, nParser.number)) {
             parser.parseToEnd("1") shouldBe NInt(1)
             parser.parseToEnd("125464") shouldBe NInt(125464)
             parser.parseToEnd("+1") shouldBe NInt(1)
@@ -37,7 +45,7 @@ class ParserTest : FunSpec({
     }
 
     test("real parsing") {
-        for (parser in arrayOf(nParser.nReal, nParser.numberP)) {
+        for (parser in arrayOf(nParser.nReal, nParser.number)) {
             parser.parseToEnd("1.0") shouldBe NReal(1.0)
             parser.parseToEnd("0.1") shouldBe NReal(0.1)
             parser.parseToEnd("0.") shouldBe NReal(0.0)
