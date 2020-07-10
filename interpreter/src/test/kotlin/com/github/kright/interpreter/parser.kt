@@ -24,4 +24,14 @@ class ParserTest : FunSpec({
         nParser.nIntP.parseToEnd("+1").shouldBe(NInt(1))
         nParser.nIntP.parseToEnd("-2").shouldBe(NInt(-2))
     }
+
+    test("real parsing") {
+        nParser.nRealP.parseToEnd("1.0").shouldBe(NReal(1.0))
+        nParser.nRealP.parseToEnd("0.1").shouldBe(NReal(0.1))
+        nParser.nRealP.parseToEnd("0.").shouldBe(NReal(0.0))
+        nParser.nRealP.parseToEnd("+1.0").shouldBe(NReal(1.0))
+        nParser.nRealP.parseToEnd("-1.0").shouldBe(NReal(-1.0))
+        nParser.nRealP.parseToEnd("-0.12").shouldBe(NReal(-0.12))
+        nParser.nRealP.parseToEnd("-45.12").shouldBe(NReal(-45.12))
+    }
 })

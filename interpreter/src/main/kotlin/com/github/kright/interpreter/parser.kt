@@ -13,17 +13,21 @@ class NParser : Grammar<Program>() {
     val ws by regexToken("\\s+", ignore = true)
 
     val id by regexToken("[^\\W\\d]\\w*")
+    val idP by id use { Id(text) }
+
+    val nReal by regexToken("[\\+\\-]?\\d[\\d_]*\\.[\\d_]*")
+    val nRealP: Parser<NReal> by nReal use {NReal(text.toDouble())}
+
     val nInt by regexToken("[\\+\\-]?\\d[\\d_]*")
-    val nIntP: Parser<NInt> by (nInt.map { NInt(it.text.toLong()) })
-    val idP by id.map { Id(it.text) }
+    val nIntP: Parser<NInt> by nInt use { NInt(text.toLong()) }
 
     val expression: Parser<Expression> by (idP or nIntP)
 
-    val statement by (skip(nVar) and idP and skip(assign) and expression)
+    val statementP by (skip(nVar) and idP and skip(assign) and expression)
         .map { (name, value) -> VarDeclaration(name, value) }
 
     override val rootParser: Parser<Program>
-        get() = zeroOrMore(statement).map { Program(it) }
+        get() = zeroOrMore(statementP).map { Program(it) }
 }
 
 fun main(args: Array<String>) {
