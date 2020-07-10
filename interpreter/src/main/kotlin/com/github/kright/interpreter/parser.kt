@@ -42,7 +42,9 @@ class NParser : Grammar<Program>() {
 
     val outExpr: Parser<OutExpr> by (skip(outRaw) and expression) use { OutExpr(this) }
 
-    val statement: Parser<Statement> by (varDeclaration or outExpr)
+    val printString: Parser<PrintString> by (skip(printRaw) and string) use { PrintString(this) }
+
+    val statement: Parser<Statement> by (varDeclaration or outExpr or printString)
 
     override val rootParser: Parser<Program>
         get() = zeroOrMore(statement).map { Program(it) }

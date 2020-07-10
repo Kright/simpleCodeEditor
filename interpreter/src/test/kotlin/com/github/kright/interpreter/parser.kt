@@ -1,7 +1,6 @@
 package com.github.kright.interpreter
 
 import com.github.h0tk3y.betterParse.parser.Parser
-import com.github.h0tk3y.betterParse.parser.parse
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -20,12 +19,18 @@ class ParserTest : FunSpec({
     }
 
     test("out expression") {
-        for(parser in arrayOf(nParser.outExpr, nParser.statement)) {
+        for (parser in arrayOf(nParser.outExpr, nParser.statement)) {
             parser.apply {
                 parseToEnd("out 1") shouldBe OutExpr(NInt(1))
                 parseToEnd("out id") shouldBe OutExpr(Id("id"))
                 parseToEnd("out -1.3") shouldBe OutExpr(NReal(-1.3))
             }
+        }
+    }
+
+    test("print string statement") {
+        for (parser in arrayOf(nParser.printString, nParser.statement)) {
+            parser.parseToEnd("""print "string"""") shouldBe PrintString("string")
         }
     }
 
@@ -65,9 +70,8 @@ class ParserTest : FunSpec({
     }
 
     test("string parser") {
-        nParser.string.apply {
-            parseToEnd("\"\"") shouldBe ""
-            parseToEnd("\"string\"") shouldBe "string"
+        for (string in arrayOf("", "a", "string", "12", " ", "12_ w5t\t")) {
+            nParser.string.parseToEnd("\"$string\"") shouldBe string
         }
     }
 })

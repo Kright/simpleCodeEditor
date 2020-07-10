@@ -17,6 +17,6 @@ sealed class Statement
 
 data class VarDeclaration(val varName: Id, val expression: Expression) : Statement()
 data class OutExpr(val expr: Expression) : Statement()
-data class OutString(val string: String) : Statement()
+data class PrintString(val string: String) : Statement()
 
 data class Program(val statements: List<Statement>)
