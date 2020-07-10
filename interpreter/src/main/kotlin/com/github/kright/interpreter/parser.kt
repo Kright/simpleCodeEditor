@@ -21,7 +21,9 @@ class NParser : Grammar<Program>() {
     val nInt by regexToken("[\\+\\-]?\\d[\\d_]*")
     val nIntP: Parser<NInt> by nInt use { NInt(text.filter { it.isDigit() || it == '-' }.toLong()) }
 
-    val expression: Parser<Expression> by (idP or nIntP)
+    val numberP: Parser<NNumber> by (nRealP or nIntP)
+
+    val expression: Parser<Expression> by (idP or numberP)
 
     val statementP by (skip(nVar) and idP and skip(assign) and expression)
         .map { (name, value) -> VarDeclaration(name, value) }

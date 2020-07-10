@@ -18,22 +18,34 @@ class ParserTest : FunSpec({
             .shouldBe(Program(listOf(VarDeclaration(Id("abc"), NInt(12)))))
     }
 
+    test("id parsing") {
+        for (parser in arrayOf(nParser.idP, nParser.expression)) {
+            for (name in arrayOf("id", "i", "i_2", "i2", "Word", "long_Word_12", "_1")) {
+                parser.parseToEnd(name) shouldBe Id(name)
+            }
+        }
+    }
+
     test("int parsing") {
-        nParser.nIntP.parseToEnd("1").shouldBe(NInt(1))
-        nParser.nIntP.parseToEnd("125464").shouldBe(NInt(125464))
-        nParser.nIntP.parseToEnd("+1").shouldBe(NInt(1))
-        nParser.nIntP.parseToEnd("-2").shouldBe(NInt(-2))
-        nParser.nIntP.parseToEnd("9_000_000").shouldBe(NInt(9000000))
+        for (parser in arrayOf(nParser.nIntP, nParser.numberP)) {
+            parser.parseToEnd("1") shouldBe NInt(1)
+            parser.parseToEnd("125464") shouldBe NInt(125464)
+            parser.parseToEnd("+1") shouldBe NInt(1)
+            parser.parseToEnd("-2") shouldBe NInt(-2)
+            parser.parseToEnd("9_000_000") shouldBe NInt(9000000)
+        }
     }
 
     test("real parsing") {
-        nParser.nRealP.parseToEnd("1.0").shouldBe(NReal(1.0))
-        nParser.nRealP.parseToEnd("0.1").shouldBe(NReal(0.1))
-        nParser.nRealP.parseToEnd("0.").shouldBe(NReal(0.0))
-        nParser.nRealP.parseToEnd("+1.0").shouldBe(NReal(1.0))
-        nParser.nRealP.parseToEnd("-1.0").shouldBe(NReal(-1.0))
-        nParser.nRealP.parseToEnd("-0.12").shouldBe(NReal(-0.12))
-        nParser.nRealP.parseToEnd("-45.12").shouldBe(NReal(-45.12))
-        nParser.nRealP.parseToEnd("12_34.56_78").shouldBe(NReal(1234.5678))
+        for (parser in arrayOf(nParser.nRealP, nParser.numberP)) {
+            parser.parseToEnd("1.0") shouldBe NReal(1.0)
+            parser.parseToEnd("0.1") shouldBe NReal(0.1)
+            parser.parseToEnd("0.") shouldBe NReal(0.0)
+            parser.parseToEnd("+1.0") shouldBe NReal(1.0)
+            parser.parseToEnd("-1.0") shouldBe NReal(-1.0)
+            parser.parseToEnd("-0.12") shouldBe NReal(-0.12)
+            parser.parseToEnd("-45.12") shouldBe NReal(-45.12)
+            parser.parseToEnd("12_34.56_78") shouldBe NReal(1234.5678)
+        }
     }
 })
