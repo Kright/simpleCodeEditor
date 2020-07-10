@@ -10,6 +10,7 @@ import com.github.h0tk3y.betterParse.parser.Parser
 class NParser : Grammar<Program>() {
     val varRaw by literalToken("var")
     val outRaw by literalToken("out")
+    val printRaw by literalToken("print")
     val assignRaw by literalToken("=")
     val bracketRoundL by literalToken("(")
     val bracketRoundR by literalToken(")")
@@ -28,6 +29,9 @@ class NParser : Grammar<Program>() {
 
     val nIntRaw by regexToken("[\\+\\-]?\\d[\\d_]*")
     val nInt: Parser<NInt> by nIntRaw use { NInt(text.filter { it.isDigit() || it == '-' }.toLong()) }
+
+    val stringRaw by regexToken("\\\"[^\\\"]*\\\"")
+    val string: Parser<String> by stringRaw use { text.substring(1, text.length - 1).toString() }
 
     val number: Parser<NNumber> by (nReal or nInt)
 
