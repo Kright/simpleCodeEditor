@@ -16,10 +16,10 @@ class NParser : Grammar<Program>() {
     val idP by id use { Id(text) }
 
     val nReal by regexToken("[\\+\\-]?\\d[\\d_]*\\.[\\d_]*")
-    val nRealP: Parser<NReal> by nReal use {NReal(text.toDouble())}
+    val nRealP: Parser<NReal> by nReal use { NReal(text.filter { it.isDigit() || it == '-' || it == '.' }.toDouble()) }
 
     val nInt by regexToken("[\\+\\-]?\\d[\\d_]*")
-    val nIntP: Parser<NInt> by nInt use { NInt(text.toLong()) }
+    val nIntP: Parser<NInt> by nInt use { NInt(text.filter { it.isDigit() || it == '-' }.toLong()) }
 
     val expression: Parser<Expression> by (idP or nIntP)
 

@@ -23,6 +23,7 @@ class ParserTest : FunSpec({
         nParser.nIntP.parseToEnd("125464").shouldBe(NInt(125464))
         nParser.nIntP.parseToEnd("+1").shouldBe(NInt(1))
         nParser.nIntP.parseToEnd("-2").shouldBe(NInt(-2))
+        nParser.nIntP.parseToEnd("9_000_000").shouldBe(NInt(9000000))
     }
 
     test("real parsing") {
@@ -33,5 +34,6 @@ class ParserTest : FunSpec({
         nParser.nRealP.parseToEnd("-1.0").shouldBe(NReal(-1.0))
         nParser.nRealP.parseToEnd("-0.12").shouldBe(NReal(-0.12))
         nParser.nRealP.parseToEnd("-45.12").shouldBe(NReal(-45.12))
+        nParser.nRealP.parseToEnd("12_34.56_78").shouldBe(NReal(1234.5678))
     }
 })
