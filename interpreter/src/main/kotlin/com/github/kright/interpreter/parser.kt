@@ -3,6 +3,7 @@ package com.github.kright.interpreter
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parseToEnd
+import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
@@ -35,7 +36,9 @@ class NParser : Grammar<Program>() {
 
     val number: Parser<NNumber> by (nReal or nInt)
 
-    val expression: Parser<Expression> by (id or number)
+    val expressionInBrackets: Parser<Expression> by (skip(bracketRoundL) and parser{ expression } and skip(bracketRoundR))
+
+    val expression: Parser<Expression> by (id or number or expressionInBrackets)
 
     val varDeclaration: Parser<VarDeclaration> by (skip(varRaw) and id and skip(assignRaw) and expression)
         .map { (name, value) -> VarDeclaration(name, value) }

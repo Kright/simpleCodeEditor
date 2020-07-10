@@ -74,4 +74,14 @@ class ParserTest : FunSpec({
             nParser.string.parseToEnd("\"$string\"") shouldBe string
         }
     }
+
+    test("expression in brackets") {
+        for (parser in arrayOf(nParser.expressionInBrackets, nParser.expression)) {
+            parser.apply {
+                parseToEnd("(1)") shouldBe NInt(1)
+                parseToEnd("(name)") shouldBe Id("name")
+                parseToEnd("(((1.0)))") shouldBe NReal(1.0)
+            }
+        }
+    }
 })
