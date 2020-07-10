@@ -84,4 +84,13 @@ class ParserTest : FunSpec({
             }
         }
     }
+
+    test("sequence") {
+        for (parser in arrayOf(nParser.sequence, nParser.expression)) {
+            parser.apply {
+                parseToEnd("{1, 2}") shouldBe NSequence(NInt(1), NInt(2))
+                parseToEnd("{name, 2.3}") shouldBe NSequence(Id("name"), NReal(2.3))
+            }
+        }
+    }
 })

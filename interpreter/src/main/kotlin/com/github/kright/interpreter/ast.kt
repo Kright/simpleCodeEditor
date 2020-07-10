@@ -5,7 +5,7 @@ data class Op(val symbol: Char)
 sealed class Expression
 data class Id(val name: String) : Expression()
 data class BinOp(val left: Expression, val op: Op, val right: Expression) : Expression()
-data class NRange(val left: Expression, val right: Expression) : Expression()
+data class NSequence(val left: Expression, val right: Expression) : Expression()
 data class FuncCall(val funcName: Id, val args: Array<Expression>) : Expression()
 data class Lambda(val args: List<Id>, val body: Expression) : Expression()
 

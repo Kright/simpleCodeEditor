@@ -17,6 +17,7 @@ class NParser : Grammar<Program>() {
     val bracketRoundR by literalToken(")")
     val bracketFigL by literalToken("{")
     val bracketFigR by literalToken("}")
+    val comma by literalToken(",")
 
     val ws by regexToken("\\s+", ignore = true)
 
@@ -36,9 +37,14 @@ class NParser : Grammar<Program>() {
 
     val number: Parser<NNumber> by (nReal or nInt)
 
-    val expressionInBrackets: Parser<Expression> by (skip(bracketRoundL) and parser{ expression } and skip(bracketRoundR))
+    val expressionInBrackets: Parser<Expression> by
+    (skip(bracketRoundL) and parser { expression } and skip(bracketRoundR))
 
-    val expression: Parser<Expression> by (id or number or expressionInBrackets)
+    val sequence: Parser<NSequence> by
+    (skip(bracketFigL) and parser { expression } and skip(comma) and parser { expression } and skip(bracketFigR))
+        .map { (left, right) -> NSequence(left, right) }
+
+    val expression: Parser<Expression> by (id or number or expressionInBrackets or sequence)
 
     val varDeclaration: Parser<VarDeclaration> by (skip(varRaw) and id and skip(assignRaw) and expression)
         .map { (name, value) -> VarDeclaration(name, value) }
