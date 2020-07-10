@@ -8,24 +8,29 @@ import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 
 class NParser : Grammar<Program>() {
-    val nVar by literalToken("var")
-    val assign by literalToken("=")
+    val varRaw by literalToken("var")
+    val assignRaw by literalToken("=")
+    val bracketRoundL by literalToken("(")
+    val bracketRoundR by literalToken(")")
+    val bracketFigL by literalToken("{")
+    val bracketFigR by literalToken("}")
+
     val ws by regexToken("\\s+", ignore = true)
 
-    val id by regexToken("[^\\W\\d]\\w*")
-    val idP by id use { Id(text) }
+    val idRaw by regexToken("[^\\W\\d]\\w*")
+    val id by idRaw use { Id(text) }
 
-    val nReal by regexToken("[\\+\\-]?\\d[\\d_]*\\.[\\d_]*")
-    val nRealP: Parser<NReal> by nReal use { NReal(text.filter { it.isDigit() || it == '-' || it == '.' }.toDouble()) }
+    val nRealRaw by regexToken("[\\+\\-]?\\d[\\d_]*\\.[\\d_]*")
+    val nReal: Parser<NReal> by nRealRaw use { NReal(text.filter { it.isDigit() || it == '-' || it == '.' }.toDouble()) }
 
-    val nInt by regexToken("[\\+\\-]?\\d[\\d_]*")
-    val nIntP: Parser<NInt> by nInt use { NInt(text.filter { it.isDigit() || it == '-' }.toLong()) }
+    val nIntRaw by regexToken("[\\+\\-]?\\d[\\d_]*")
+    val nInt: Parser<NInt> by nIntRaw use { NInt(text.filter { it.isDigit() || it == '-' }.toLong()) }
 
-    val numberP: Parser<NNumber> by (nRealP or nIntP)
+    val numberP: Parser<NNumber> by (nReal or nInt)
 
-    val expression: Parser<Expression> by (idP or numberP)
+    val expression: Parser<Expression> by (id or numberP)
 
-    val statementP by (skip(nVar) and idP and skip(assign) and expression)
+    val statementP by (skip(varRaw) and id and skip(assignRaw) and expression)
         .map { (name, value) -> VarDeclaration(name, value) }
 
     override val rootParser: Parser<Program>

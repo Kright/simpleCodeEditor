@@ -19,7 +19,7 @@ class ParserTest : FunSpec({
     }
 
     test("id parsing") {
-        for (parser in arrayOf(nParser.idP, nParser.expression)) {
+        for (parser in arrayOf(nParser.id, nParser.expression)) {
             for (name in arrayOf("id", "i", "i_2", "i2", "Word", "long_Word_12", "_1")) {
                 parser.parseToEnd(name) shouldBe Id(name)
             }
@@ -27,7 +27,7 @@ class ParserTest : FunSpec({
     }
 
     test("int parsing") {
-        for (parser in arrayOf(nParser.nIntP, nParser.numberP)) {
+        for (parser in arrayOf(nParser.nInt, nParser.numberP)) {
             parser.parseToEnd("1") shouldBe NInt(1)
             parser.parseToEnd("125464") shouldBe NInt(125464)
             parser.parseToEnd("+1") shouldBe NInt(1)
@@ -37,7 +37,7 @@ class ParserTest : FunSpec({
     }
 
     test("real parsing") {
-        for (parser in arrayOf(nParser.nRealP, nParser.numberP)) {
+        for (parser in arrayOf(nParser.nReal, nParser.numberP)) {
             parser.parseToEnd("1.0") shouldBe NReal(1.0)
             parser.parseToEnd("0.1") shouldBe NReal(0.1)
             parser.parseToEnd("0.") shouldBe NReal(0.0)
