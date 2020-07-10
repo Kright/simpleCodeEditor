@@ -93,4 +93,14 @@ class ParserTest : FunSpec({
             }
         }
     }
+
+    test("binary operations") {
+        nParser.expression.apply {
+            parseToEnd("1 + 2") shouldBe BinOp(NInt(1), Op("+"), NInt(2))
+            parseToEnd("1 + -2") shouldBe BinOp(NInt(1), Op("+"), NInt(-2))
+            parseToEnd("1 + 2 - 3") shouldBe BinOp(BinOp(NInt(1), Op("+"), NInt(2)), Op("-"), NInt(3))
+            parseToEnd("1 + 2 * 3") shouldBe BinOp(NInt(1), Op("+"), BinOp(NInt(2), Op("*"), NInt(3)))
+            parseToEnd("1 + 2 * 3 ^ 4") shouldBe BinOp(NInt(1), Op("+"), BinOp(NInt(2), Op("*"), BinOp(NInt(3), Op("^"), NInt(4))))
+        }
+    }
 })

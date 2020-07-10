@@ -8,6 +8,44 @@ import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 
+
+class OperatorsPriority(val levels: List<Set<Op>>) {
+    fun usePriorities(terms: List<Expression>, separators: List<Op>): Expression {
+        val (resultTerms, resultSeparators) = levels.fold(Pair(terms, separators), this::foldOperators)
+        check(resultTerms.size == 1)
+        check(resultSeparators.isEmpty())
+        return resultTerms[0]
+    }
+
+    private fun foldOperators(
+        terms: Pair<List<Expression>, List<Op>>,
+        opsToFold: Set<Op>
+    ): Pair<List<Expression>, List<Op>> {
+        val (exprs, ops) = terms
+        check(exprs.size == ops.size + 1)
+        if (exprs.size == 1) {
+            return terms
+        }
+
+        val resultExprs = mutableListOf<Expression>(exprs[0])
+        val resultOps = mutableListOf<Op>()
+
+        for (i in ops.indices) {
+            val expr = exprs[i + 1]
+            val op = ops[i]
+            if (opsToFold.contains(op)) {
+                // change previous expr
+                resultExprs[resultExprs.size - 1] = BinOp(resultExprs.last(), op, expr)
+            } else {
+                resultExprs += expr
+                resultOps += op
+            }
+        }
+
+        return Pair(resultExprs, resultOps)
+    }
+}
+
 class NParser : Grammar<Program>() {
     val varRaw by literalToken("var")
     val outRaw by literalToken("out")
@@ -33,7 +71,7 @@ class NParser : Grammar<Program>() {
     val nInt: Parser<NInt> by nIntRaw use { NInt(text.filter { it.isDigit() || it == '-' }.toLong()) }
 
     val stringRaw by regexToken("\\\"[^\\\"]*\\\"")
-    val string: Parser<String> by stringRaw use { text.substring(1, text.length - 1).toString() }
+    val string: Parser<String> by stringRaw use { text.substring(1, text.length - 1) }
 
     val number: Parser<NNumber> by (nReal or nInt)
 
@@ -44,7 +82,25 @@ class NParser : Grammar<Program>() {
     (skip(bracketFigL) and parser { expression } and skip(comma) and parser { expression } and skip(bracketFigR))
         .map { (left, right) -> NSequence(left, right) }
 
-    val expression: Parser<Expression> by (id or number or expressionInBrackets or sequence)
+    val expressionAtom by (id or number or expressionInBrackets or sequence)
+
+    val opAdd by literalToken("+")
+    val opSub by literalToken("-")
+    val opMul by literalToken("*")
+    val opDiv by literalToken("/")
+    val opPow by literalToken("^")
+
+    val op by (opAdd or opSub or opMul or opDiv or opPow).use { Op(text) }
+    val operatorsPriority = OperatorsPriority(
+        listOf(
+            setOf(Op("^")),
+            setOf(Op("*"), Op("/")),
+            setOf(Op("+"), Op("-"))
+        )
+    )
+
+    val expression: Parser<Expression> by separated(expressionAtom, op)
+        .use { operatorsPriority.usePriorities(terms, separators) }
 
     val varDeclaration: Parser<VarDeclaration> by (skip(varRaw) and id and skip(assignRaw) and expression)
         .map { (name, value) -> VarDeclaration(name, value) }

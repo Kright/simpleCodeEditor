@@ -1,6 +1,6 @@
 package com.github.kright.interpreter
 
-data class Op(val symbol: Char)
+data class Op(val name: String)
 
 sealed class Expression
 data class Id(val name: String) : Expression()
