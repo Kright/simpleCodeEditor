@@ -57,18 +57,30 @@ class NParser : Grammar<Program>() {
     val bracketFigR by literalToken("}")
     val comma by literalToken(",")
 
+    val opAdd by literalToken("+")
+    val opSub by literalToken("-")
+    val opMul by literalToken("*")
+    val opDiv by literalToken("/")
+    val opPow by literalToken("^")
+
+    val addSubMaybe: Parser<Op?> by (0..1).times(opAdd or opSub) use { firstOrNull()?.let { Op(it.text) } }
+
     val ws by regexToken("\\s+", ignore = true)
 
     val idRaw by regexToken("[^\\W\\d]\\w*")
     val id by idRaw use { Id(text) }
 
     val nRealRaw by regexToken("[\\+\\-]?\\d[\\d_]*\\.[\\d_]*")
-    val nReal: Parser<NReal> by nRealRaw use {
-        NReal(text.filter { it.isDigit() || it == '-' || it == '.' }.toDouble())
+    val nReal: Parser<NReal> by (addSubMaybe and nRealRaw).map { (op, real) ->
+        val sign = if (op == Op("-")) "-" else ""
+        NReal((sign + real.text).filter { it.isDigit() || it == '-' || it == '.' }.toDouble())
     }
 
     val nIntRaw by regexToken("[\\+\\-]?\\d[\\d_]*")
-    val nInt: Parser<NInt> by nIntRaw use { NInt(text.filter { it.isDigit() || it == '-' }.toLong()) }
+    val nInt: Parser<NInt> by (addSubMaybe and nIntRaw).map { (op, int) ->
+        val sign = if (op == Op("-")) "-" else ""
+        NInt((sign + int.text).filter { it.isDigit() || it == '-' }.toLong())
+    }
 
     val stringRaw by regexToken("\\\"[^\\\"]*\\\"")
     val string: Parser<String> by stringRaw use { text.substring(1, text.length - 1) }
@@ -83,12 +95,6 @@ class NParser : Grammar<Program>() {
         .map { (left, right) -> NSequence(left, right) }
 
     val expressionAtom by (id or number or expressionInBrackets or sequence)
-
-    val opAdd by literalToken("+")
-    val opSub by literalToken("-")
-    val opMul by literalToken("*")
-    val opDiv by literalToken("/")
-    val opPow by literalToken("^")
 
     val op by (opAdd or opSub or opMul or opDiv or opPow).use { Op(text) }
     val operatorsPriority = OperatorsPriority(
