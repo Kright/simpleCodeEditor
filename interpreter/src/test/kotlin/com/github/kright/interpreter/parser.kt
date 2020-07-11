@@ -118,6 +118,15 @@ class ParserTest : FunSpec({
         nParser.lambda.apply {
             parseToEnd("i -> i") shouldBe Lambda(listOf(Id("i")), Id("i"))
             parseToEnd("i -> i + j") shouldBe Lambda(listOf(Id("i")), BinOp(Id("i"), Op("+"), Id("j")))
+            parseToEnd("i j -> i + j") shouldBe Lambda(listOf(Id("i"), Id("j")), BinOp(Id("i"), Op("+"), Id("j")))
+        }
+    }
+
+    test("func call") {
+        nParser.funcCall.apply {
+            parseToEnd("i(2)") shouldBe FuncCall(Id("i"), listOf(NInt(2)))
+            parseToEnd("i ( 2 )") shouldBe FuncCall(Id("i"), listOf(NInt(2)))
+            parseToEnd("f(i j -> i + j)") shouldBe FuncCall(Id("f"), listOf(Lambda(listOf(Id("i"), Id("j")), BinOp(Id("i"), Op("+"), Id("j")))))
         }
     }
 })

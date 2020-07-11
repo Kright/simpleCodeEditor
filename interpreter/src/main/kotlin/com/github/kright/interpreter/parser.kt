@@ -61,6 +61,10 @@ class NParser : Grammar<Program>() {
     (skip(bracketFigL) and parser { expression } and skip(comma) and parser { expression } and skip(bracketFigR))
         .map { (left, right) -> NSequence(left, right) }
 
+    val funcCall: Parser<FuncCall> by
+    (id and skip(bracketRoundL) and separated(lambda or parser { expression }, comma) and skip(bracketRoundR))
+        .map { (funcName, args) -> FuncCall(funcName, args.terms)}
+
     val expressionAtom by (id or number or expressionInBrackets or sequence)
 
     val op by (opAdd or opSub or opMul or opDiv or opPow).use { Op(text) }
