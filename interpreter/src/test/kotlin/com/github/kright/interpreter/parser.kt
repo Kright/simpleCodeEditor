@@ -129,4 +129,45 @@ class ParserTest : FunSpec({
             parseToEnd("f(i j -> i + j)") shouldBe FuncCall(Id("f"), listOf(Lambda(listOf(Id("i"), Id("j")), BinOp(Id("i"), Op("+"), Id("j")))))
         }
     }
+
+    test("program") {
+        val text = """
+            var n = 500
+            var sequence = map({0, n}, i -> (-1)^i / (2 * i + 1))
+            var pi = 4 * reduce(sequence, 0, x y -> x + y)
+            print "pi = "
+            out pi
+        """.trimIndent()
+
+        val i = Id("i")
+        val pi = Id("pi")
+        val x = Id("x")
+        val y = Id("y")
+
+        val expected = Program(
+            listOf(
+                VarDeclaration(Id("n"), NInt(500)),
+                VarDeclaration(Id("sequence"), FuncCall(Id("map"), listOf(
+                    NSequence(NInt(0), Id("n")),
+                    Lambda(listOf(i), BinOp(
+                        BinOp( NInt(-1), Op("^"), i ),
+                        Op("/"),
+                        BinOp(BinOp(NInt(2), Op("*"), i), Op("+"), NInt(1))
+                ))))),
+                VarDeclaration(pi, BinOp(
+                    NInt(4),
+                    Op("*"),
+                    FuncCall(Id("reduce"), listOf(
+                        Id("sequence"),
+                        NInt(0),
+                        Lambda(listOf(x, y), BinOp(x, Op("+"), y))
+                    ))
+                )),
+                PrintString("pi = "),
+                OutExpr(pi)
+            )
+        )
+
+        nParser.parseToEnd(text) shouldBe expected
+    }
 })

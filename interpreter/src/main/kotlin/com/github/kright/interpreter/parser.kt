@@ -29,7 +29,7 @@ class NParser : Grammar<Program>() {
 
     val addSubMaybe: Parser<Op?> by (0..1).times(opAdd or opSub) use { firstOrNull()?.let { Op(it.text) } }
 
-    val ws by regexToken("\\s+", ignore = true)
+    val whitespace by regexToken("\\s+", ignore = true)
 
     val idRaw by regexToken("[^\\W\\d]\\w*")
     val id by idRaw use { Id(text) }
@@ -65,7 +65,7 @@ class NParser : Grammar<Program>() {
     (id and skip(bracketRoundL) and separated(lambda or parser { expression }, comma) and skip(bracketRoundR))
         .map { (funcName, args) -> FuncCall(funcName, args.terms)}
 
-    val expressionAtom by (id or number or expressionInBrackets or sequence)
+    val expressionAtom by (funcCall or id or number or expressionInBrackets or sequence)
 
     val op by (opAdd or opSub or opMul or opDiv or opPow).use { Op(text) }
     val operatorsPriority = OperatorsPriority(
