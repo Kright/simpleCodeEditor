@@ -2,13 +2,11 @@ package com.github.kright.interpreter
 
 import kotlin.math.pow
 
-class Output(val print: (String) -> Unit, val error: (String) -> Unit)
-
 sealed class InterpreterValue
 
 data class VInt(val value: Long) : InterpreterValue()
 data class VReal(val value: Double) : InterpreterValue()
-data class VSequence(val elements: Sequence<InterpreterValue>) : InterpreterValue()
+data class VSequence(val elements: List<InterpreterValue>) : InterpreterValue()
 data class VLambda(val argsCount: Int, val func: (List<InterpreterValue>) -> InterpreterValue) : InterpreterValue()
 
 
@@ -25,10 +23,10 @@ class InterpreterException(reason: String) : RuntimeException(reason)
 
 
 class InterpreterState(
-    val variables: HashMap<Id, InterpreterValue>,
-    val operators: Map<Op, (InterpreterValue, InterpreterValue) -> InterpreterValue>,
-    val functions: Map<Id, (List<InterpreterValue>) -> InterpreterValue>,
-    val out: Output
+    private val variables: HashMap<Id, InterpreterValue> = HashMap(),
+    private val operators: Map<Op, (InterpreterValue, InterpreterValue) -> InterpreterValue> = makeDefaultOperators(),
+    private val functions: Map<Id, (List<InterpreterValue>) -> InterpreterValue> = makeDefaultFunctions(),
+    private val out: Output = Output.default()
 ) {
     fun run(statement: Statement) {
         when (statement) {
@@ -56,7 +54,7 @@ class InterpreterState(
             is NSequence -> {
                 val left = toVInt(eval(e.left))
                 val right = toVInt(eval(e.right))
-                return VSequence((left.value..right.value).asSequence().map { VInt(it) })
+                return VSequence((left.value..right.value).asSequence().map { VInt(it) }.toList())
             }
             is FuncCall -> {
                 val func = functions[e.funcName] ?: throw InterpreterException("no such function: ${e.funcName.name}")
@@ -100,15 +98,6 @@ class InterpreterState(
         }
 
     companion object {
-        fun default(): InterpreterState {
-            return InterpreterState(
-                variables = HashMap(),
-                operators = makeDefaultOperators(),
-                functions = makeDefaultFunctions(),
-                out = Output({ println(it) }, { println("error: ${it}") })
-            )
-        }
-
         private fun binOp(
             f1: (Long, Long) -> Long,
             f2: (Double, Double) -> Double
@@ -130,7 +119,10 @@ class InterpreterState(
             )
 
         private fun makeDefaultFunctions(): Map<Id, (List<InterpreterValue>) -> InterpreterValue> =
-            mapOf()
+            mapOf(
+                Id("map") to this::map,
+                Id("reduce") to this::reduce
+            )
 
         private fun pow(a: InterpreterValue, b: InterpreterValue) = VReal(toVReal(a).value.pow(toVReal(b).value))
 
