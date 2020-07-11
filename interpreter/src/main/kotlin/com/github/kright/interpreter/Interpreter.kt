@@ -1,12 +1,19 @@
 package com.github.kright.interpreter
 
 import com.github.h0tk3y.betterParse.grammar.parseToEnd
+import com.github.h0tk3y.betterParse.parser.ParseException
+
 
 class Interpreter(private val output: Output = Output.default()) {
     private val parser = NParser()
 
-    fun parse(code: String): Program {
-        return parser.parseToEnd(code)
+    fun parse(code: String): Program? {
+        return try {
+            parser.parseToEnd(code)
+        } catch (e: ParseException) {
+            output.error(e.errorResult.toString())
+            null
+        }
     }
 
     fun run(program: Program) {
@@ -23,6 +30,6 @@ class Interpreter(private val output: Output = Output.default()) {
 
     fun run(code: String) {
         val program = parse(code)
-        run(program)
+        program?.also { run(it) }
     }
 }

@@ -18,4 +18,7 @@ fun main(args: Array<String>) {
         out 2 + 2 * 2
     """.trimIndent()
     interpreter.run(code)
+
+    interpreter.run("var seq = 123.34.5")
+    interpreter.run("var seq = {1.0, 2}")
 }
