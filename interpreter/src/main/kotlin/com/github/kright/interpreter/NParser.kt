@@ -8,6 +8,9 @@ import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.Parser
 
 
+private typealias Info = ConcreteSyntaxInfo
+
+
 class NParser : Grammar<Program>() {
     val varRaw by literalToken("var")
     val outRaw by literalToken("out")
@@ -26,23 +29,23 @@ class NParser : Grammar<Program>() {
     val opDiv by literalToken("/")
     val opPow by literalToken("^")
 
-    val addSubMaybe: Parser<Op?> by (0..1).times(opAdd or opSub) use { firstOrNull()?.let { Op(it.text) } }
+    val addSubMaybe: Parser<Op?> by (0..1).times(opAdd or opSub) use { firstOrNull()?.let { Op(it.text, Info(it)) } }
 
     val whitespace by regexToken("\\s+", ignore = true)
 
     val idRaw by regexToken("[^\\W\\d]\\w*")
-    val id by idRaw use { Id(text) }
+    val id by idRaw use { Id(text, Info(this)) }
 
     val nRealRaw by regexToken("[\\+\\-]?\\d[\\d_]*\\.[\\d_]*")
     val nReal: Parser<NReal> by (addSubMaybe and nRealRaw).map { (op, real) ->
         val sign = if (op == Op("-")) "-" else ""
-        NReal((sign + real.text).filter { it.isDigit() || it == '-' || it == '.' }.toDouble())
+        NReal((sign + real.text).filter { it.isDigit() || it == '-' || it == '.' }.toDouble(), Info(real))
     }
 
     val nIntRaw by regexToken("[\\+\\-]?\\d[\\d_]*")
     val nInt: Parser<NInt> by (addSubMaybe and nIntRaw).map { (op, int) ->
         val sign = if (op == Op("-")) "-" else ""
-        NInt((sign + int.text).filter { it.isDigit() || it == '-' }.toLong())
+        NInt((sign + int.text).filter { it.isDigit() || it == '-' }.toLong(), ConcreteSyntaxInfo(int))
     }
 
     val stringRaw by regexToken("\\\"[^\\\"]*\\\"")

@@ -24,7 +24,7 @@ class Interpreter(private val output: Output = Output.default()) {
             }
         } catch (e: InterpreterException) {
             output.error(e.message ?: "")
-            e.printStackTrace()
+//            e.printStackTrace()
         }
     }
 

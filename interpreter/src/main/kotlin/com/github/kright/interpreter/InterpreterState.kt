@@ -36,7 +36,9 @@ class InterpreterState(
                 out.print(toString(eval(statement.expr)))
             is VarDeclaration -> {
                 if (variables.containsKey(statement.varName)) {
-                    throw InterpreterException("variable is already declared: ${statement.varName}")
+                    throw InterpreterException(
+                        "variable is already declared: ${statement.varName} at ${statement.varName.info}"
+                    )
                 }
                 variables[statement.varName] = eval(statement.expression)
             }
@@ -46,19 +48,32 @@ class InterpreterState(
     private fun eval(e: Expression): InterpreterValue {
         when (e) {
             is Id ->
-                return variables[e] ?: throw InterpreterException("variable ${e.name} wasn't declared")
+                return variables[e] ?: throw InterpreterException("variable ${e.name} wasn't declared at ${e.info}")
             is BinOp -> {
-                val op = operators[e.op] ?: throw InterpreterException("no such operator: ${e.op.name}")
-                return op(eval(e.left), eval(e.right))
+                val op = operators[e.op] ?: throw InterpreterException("no such operator: ${e.op.name} at ${e.info}")
+                return try {
+                    op(eval(e.left), eval(e.right))
+                } catch (ex: InterpreterException) {
+                    throw InterpreterException(ex.message + "\nfor ${e} at ${e.info}")
+                }
             }
             is NSequence -> {
-                val left = toVInt(eval(e.left))
-                val right = toVInt(eval(e.right))
+                val left = eval(e.left).let {
+                    toVInt(it) ?: throw InterpreterException("expected int in sequence at ${e.left.info}")
+                }
+                val right = eval(e.right).let {
+                    toVInt(it) ?: throw InterpreterException("expected int in sequence at ${e.right.info}")
+                }
                 return VSequence((left.value..right.value).asSequence().map { VInt(it) }.toList())
             }
             is FuncCall -> {
-                val func = functions[e.funcName] ?: throw InterpreterException("no such function: ${e.funcName.name}")
-                return func(e.args.map { eval(it) })
+                val func = functions[e.funcName]
+                    ?: throw InterpreterException("no such function: ${e.funcName.name} at ${e.funcName.info}")
+                try {
+                    return func(e.args.map { eval(it) })
+                } catch (ex: InterpreterException) {
+                    throw InterpreterException(ex.message + "\nfor function ${e.funcName.name} at ${e.info}")
+                }
             }
             is Lambda -> return makeVLambda(e)
             is NReal -> return VReal(e.value)
@@ -153,10 +168,10 @@ class InterpreterState(
             }
         }
 
-        private fun toVInt(v: InterpreterValue): VInt =
+        private fun toVInt(v: InterpreterValue): VInt? =
             when (v) {
                 is VInt -> v
-                else -> throw InterpreterException("expected int, get ${getTypeDescription(v)}")
+                else -> null
             }
 
         private fun toVReal(v: InterpreterValue): VReal =

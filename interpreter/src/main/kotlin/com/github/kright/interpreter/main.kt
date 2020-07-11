@@ -19,6 +19,8 @@ fun main(args: Array<String>) {
     """.trimIndent()
     interpreter.run(code)
 
-    interpreter.run("var seq = 123.34.5")
     interpreter.run("var seq = {1.0, 2}")
+
+    interpreter.run("out map(1, 2, 3)")
+    interpreter.run("out {1, 2} + 3")
 }
