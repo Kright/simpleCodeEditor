@@ -142,7 +142,7 @@ class InterpreterState(
             val s = toSequence(args[0])
             val initial = args[1]
             val lambda = toLambda(args[2])
-            interpreterCheck(lambda.argsCount == 2) { "lambda should have exactly one argument" }
+            interpreterCheck(lambda.argsCount == 2) { "lambda should have exactly two arguments" }
 
             return s.elements.fold(initial, { acc, v -> lambda.func(listOf(acc, v)) })
         }
