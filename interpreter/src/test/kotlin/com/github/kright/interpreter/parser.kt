@@ -113,4 +113,11 @@ class ParserTest : FunSpec({
             parseToEnd("1+2*3^4") shouldBe BinOp(NInt(1), Op("+"), BinOp(NInt(2), Op("*"), BinOp(NInt(3), Op("^"), NInt(4))))
         }
     }
+
+    test("lambda") {
+        nParser.lambda.apply {
+            parseToEnd("i -> i") shouldBe Lambda(listOf(Id("i")), Id("i"))
+            parseToEnd("i -> i + j") shouldBe Lambda(listOf(Id("i")), BinOp(Id("i"), Op("+"), Id("j")))
+        }
+    }
 })
