@@ -2,7 +2,6 @@ package com.github.kright.interpreter
 
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
-import com.github.h0tk3y.betterParse.grammar.parseToEnd
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
@@ -63,7 +62,7 @@ class NParser : Grammar<Program>() {
 
     val funcCall: Parser<FuncCall> by
     (id and skip(bracketRoundL) and separated(lambda or parser { expression }, comma) and skip(bracketRoundR))
-        .map { (funcName, args) -> FuncCall(funcName, args.terms)}
+        .map { (funcName, args) -> FuncCall(funcName, args.terms) }
 
     val expressionAtom by (funcCall or id or number or expressionInBrackets or sequence)
 
@@ -92,10 +91,3 @@ class NParser : Grammar<Program>() {
         get() = zeroOrMore(statement).map { Program(it) }
 }
 
-fun main(args: Array<String>) {
-    println("Hello from parser!")
-    val p = NParser()
-
-    println(p.parseToEnd("var i = j"))
-    println(p.parseToEnd("var i = 2"))
-}
