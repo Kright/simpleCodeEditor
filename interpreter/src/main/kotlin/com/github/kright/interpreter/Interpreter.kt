@@ -6,6 +6,7 @@ import com.github.h0tk3y.betterParse.parser.ParseException
 
 class Interpreter(private val output: Output = Output.default()) {
     private val parser = NParser()
+    private val state = InterpreterState(out = output)
 
     fun parse(code: String): Program? {
         return try {
@@ -17,14 +18,12 @@ class Interpreter(private val output: Output = Output.default()) {
     }
 
     fun run(program: Program) {
-        val state = InterpreterState(out = output)
         try {
             for (statement in program.statements) {
                 state.run(statement)
             }
         } catch (e: InterpreterException) {
             output.error(e.message ?: "")
-//            e.printStackTrace()
         }
     }
 

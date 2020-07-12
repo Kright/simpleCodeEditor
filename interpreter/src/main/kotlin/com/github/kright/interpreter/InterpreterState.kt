@@ -50,11 +50,11 @@ class InterpreterState(
             is Id ->
                 return variables[e] ?: throw InterpreterException("variable ${e.name} wasn't declared at ${e.info}")
             is BinOp -> {
-                val op = operators[e.op] ?: throw InterpreterException("no such operator: ${e.op.name} at ${e.info}")
+                val op = operators[e.op] ?: throw InterpreterException("no such operator: ${e.op.name} at ${e.op.info}")
                 return try {
                     op(eval(e.left), eval(e.right))
                 } catch (ex: InterpreterException) {
-                    throw InterpreterException(ex.message + "\nfor ${e} at ${e.info}")
+                    throw InterpreterException(ex.message + "\nfor ${e.op.name} at ${e.op.info}")
                 }
             }
             is NSequence -> {

@@ -21,7 +21,7 @@ version = "0.1"
 group = "com.github.kright.interpreter"
 
 application {
-    mainClassName = "com.github.kright.interpreter.ParserKt"
+    mainClassName = "com.github.kright.interpreter.MainKt"
 }
 
 tasks.withType<Test> {

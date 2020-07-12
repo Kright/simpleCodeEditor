@@ -1,7 +1,7 @@
 package com.github.kright.interpreter
 
 fun main(args: Array<String>) {
-    val interpreter = Interpreter()
+    println("args = $args")
 
     val code = """
         var pi = 3.14
@@ -17,10 +17,10 @@ fun main(args: Array<String>) {
         out seqOfSeq
         out 2 + 2 * 2
     """.trimIndent()
-    interpreter.run(code)
+    Interpreter().run(code)
 
-    interpreter.run("var seq = {1.0, 2}")
+    Interpreter().run("var seq = {1.0, 2}")
 
-    interpreter.run("out map(1, 2, 3)")
-    interpreter.run("out {1, 2} + 3")
+    Interpreter().run("out map(1, 2, 3)")
+    Interpreter().run("out {1, 2} + 3")
 }

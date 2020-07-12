@@ -45,7 +45,7 @@ class NParser : Grammar<Program>() {
     val nIntRaw by regexToken("[\\+\\-]?\\d[\\d_]*")
     val nInt: Parser<NInt> by (addSubMaybe and nIntRaw).map { (op, int) ->
         val sign = if (op == Op("-")) "-" else ""
-        NInt((sign + int.text).filter { it.isDigit() || it == '-' }.toLong(), ConcreteSyntaxInfo(int))
+        NInt((sign + int.text).filter { it.isDigit() || it == '-' }.toLong(), Info(int))
     }
 
     val stringRaw by regexToken("\\\"[^\\\"]*\\\"")
@@ -69,7 +69,7 @@ class NParser : Grammar<Program>() {
 
     val expressionAtom by (funcCall or id or number or expressionInBrackets or sequence)
 
-    val op by (opAdd or opSub or opMul or opDiv or opPow).use { Op(text) }
+    val op by (opAdd or opSub or opMul or opDiv or opPow).map { Op(it.text, Info(it)) }
     val operatorsPriority = OperatorsPriority(
         listOf(
             setOf(Op("^")),
