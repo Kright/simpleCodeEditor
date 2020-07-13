@@ -17,18 +17,20 @@ class Interpreter(private val output: Output = Output.default()) {
         }
     }
 
-    fun run(program: Program) {
-        try {
+    fun run(program: Program): Boolean {
+        return try {
             for (statement in program.statements) {
                 state.run(statement)
             }
+            true
         } catch (e: InterpreterException) {
             output.error(e.message ?: "")
+            false
         }
     }
 
-    fun run(code: String) {
-        val program = parse(code)
-        program?.also { run(it) }
+    fun run(code: String): Boolean {
+        val program = parse(code) ?: return false
+        return run(program)
     }
 }
