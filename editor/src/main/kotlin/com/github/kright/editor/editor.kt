@@ -17,13 +17,25 @@ fun createAndShowGUI() {
 
     val menuBar = JMenuBar().apply {
         preferredSize = Dimension(200, 20)
+
+        // http://java-online.ru/swing-menu.xhtml
+        add(JMenu("File").apply {
+            add("open")
+            add("save")
+            add("save as")
+            addSeparator()
+            add("exit")
+        })
+
+        add(JButton("run"))
     }
+
+    val programCode = JTextPane()
 
     val programOutput = JProgramOutput()
     programOutput.println("program output")
     programOutput.error("error text")
 
-    val programCode = JTextPane()
 
     frame.jMenuBar = menuBar
     frame.contentPane.add(JScrollPane(programCode), BorderLayout.CENTER)
@@ -42,7 +54,7 @@ fun main(args: Array<String>) {
     }
 }
 
-class JProgramOutput: JTextPane() {
+class JProgramOutput : JTextPane() {
     init {
         margin = Insets(5, 5, 5, 5)
         isEditable = false
