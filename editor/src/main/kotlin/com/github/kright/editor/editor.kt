@@ -4,6 +4,8 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Insets
+import java.awt.event.ActionEvent
+import java.awt.event.WindowEvent
 import javax.swing.*
 import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
@@ -24,7 +26,13 @@ fun createAndShowGUI() {
             add("save")
             add("save as")
             addSeparator()
-            add("exit")
+            add(
+                object : AbstractAction("exit") {
+                    override fun actionPerformed(e: ActionEvent?) {
+                        frame.dispatchEvent(WindowEvent(frame, WindowEvent.WINDOW_CLOSING))
+                    }
+                }
+            )
         })
 
         add(JButton("run"))
@@ -47,8 +55,6 @@ fun createAndShowGUI() {
 
 fun main(args: Array<String>) {
     // reference: https://docs.oracle.com/javase/tutorial/uiswing/components/index.html
-    println("Hello world!")
-
     SwingUtilities.invokeLater {
         createAndShowGUI()
     }
