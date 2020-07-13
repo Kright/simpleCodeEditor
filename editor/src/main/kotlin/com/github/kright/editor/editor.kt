@@ -12,6 +12,12 @@ import javax.swing.text.StyleConstants
 import javax.swing.text.StyleContext
 
 
+fun makeAction(name: String, action: (ActionEvent?) -> Unit): Action =
+    object : AbstractAction(name) {
+        override fun actionPerformed(e: ActionEvent?) = action(e)
+    }
+
+
 fun createAndShowGUI() {
     val frame = JFrame("code editor").apply {
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
@@ -27,10 +33,8 @@ fun createAndShowGUI() {
             add("save as")
             addSeparator()
             add(
-                object : AbstractAction("exit") {
-                    override fun actionPerformed(e: ActionEvent?) {
-                        frame.dispatchEvent(WindowEvent(frame, WindowEvent.WINDOW_CLOSING))
-                    }
+                makeAction("exit") {
+                    frame.dispatchEvent(WindowEvent(frame, WindowEvent.WINDOW_CLOSING))
                 }
             )
         })
@@ -38,15 +42,14 @@ fun createAndShowGUI() {
         add(JButton("run"))
     }
 
-    val programCode = JTextPane()
+    val codeEditor = JCodeEditor()
 
     val programOutput = JProgramOutput()
     programOutput.println("program output")
     programOutput.error("error text")
 
-
     frame.jMenuBar = menuBar
-    frame.contentPane.add(JScrollPane(programCode), BorderLayout.CENTER)
+    frame.contentPane.add(JScrollPane(codeEditor), BorderLayout.CENTER)
     frame.contentPane.add(JScrollPane(programOutput), BorderLayout.PAGE_END)
 
     frame.pack()
@@ -81,4 +84,12 @@ class JProgramOutput : JTextPane() {
 
     fun println(text: String) = appendText(text + "\n", Color.black)
     fun error(text: String) = appendText(text + "\n", Color.red)
+    fun clear() {
+        isEditable = true
+        text = ""
+        isEditable = false
+    }
+}
+
+class JCodeEditor : JTextPane() {
 }
