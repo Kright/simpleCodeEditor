@@ -1,27 +1,29 @@
 package com.github.kright.editor
 
-import java.awt.event.WindowEvent
 import javax.swing.JButton
-import javax.swing.JFrame
 import javax.swing.JMenu
 import javax.swing.JMenuBar
+import javax.swing.JMenuItem
 
-class EditorMenuBar(frame: JFrame) : JMenuBar() {
+class EditorMenuBar(private val editor: CodeEditorJFrame) : JMenuBar() {
+
+    val saveItem: JMenuItem
+
     init {
-        // http://java-online.ru/swing-menu.xhtml
 
+        // http://java-online.ru/swing-menu.xhtml
         add(JMenu("File").apply {
-            add("open")
-            add("save")
-            add("save as")
+            add(makeAction("open") { editor.menuOpenFile() })
+            saveItem = add(makeAction("save") { editor.menuSave() }).apply {
+                isVisible = false
+            }
+            add(makeAction("save as") { editor.menuSaveAs() })
             addSeparator()
-            add(
-                makeAction("exit") {
-                    frame.dispatchEvent(WindowEvent(frame, WindowEvent.WINDOW_CLOSING))
-                }
-            )
+            add(makeAction("exit") { editor.menuClose() })
         })
 
-        add(JButton("run"))
+        add(JButton("run").apply {
+            action = makeAction("run") { editor.menuRun() }
+        })
     }
 }
