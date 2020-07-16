@@ -16,6 +16,6 @@ object TLambda : TType() {
     override fun toString() = "Lambda"
 }
 
-data class TSeq(val elements: TType) {
+data class TSeq(val elements: TType): TType() {
     override fun toString(): String = "Seq<${elements}>"
 }

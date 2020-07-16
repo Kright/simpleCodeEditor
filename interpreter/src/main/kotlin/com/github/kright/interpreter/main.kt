@@ -4,10 +4,11 @@ import java.io.File
 
 
 fun main(args: Array<String>) {
-    val output = Output(print = { println(it) }, error = { error(it) })
-    val interpreter = Interpreter(output = output)
 
     if (args.isEmpty()) {
+        val output = Output(print = { println(it) }, error = { System.err.println(it) })
+        val interpreter = Interpreter(output = output)
+
         output.print("welcome to REPL mode")
         while (true) {
             readLine()?.also {
@@ -24,6 +25,7 @@ fun main(args: Array<String>) {
         }
 
         val code = file.readText()
+        val interpreter = Interpreter(Output(print = { println(it) }, error = { error(it) }))
         interpreter.run(code)
     }
 }
