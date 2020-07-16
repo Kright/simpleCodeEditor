@@ -12,10 +12,10 @@ object TReal : TType() {
     override fun toString() = "Real"
 }
 
-object TLambda : TType() {
+data class TLambda(val lambda: InterpreterFunction) : TType() {
     override fun toString() = "Lambda"
 }
 
-data class TSeq(val elements: TType): TType() {
+data class TSeq(val elements: TType) : TType() {
     override fun toString(): String = "Seq<${elements}>"
 }

@@ -26,9 +26,14 @@ data class VReal(val value: Double) : InterpreterValue() {
 
 data class VSequence(val elements: List<InterpreterValue>, override val type: TType) : InterpreterValue()
 
-data class VLambda(val argsCount: Int, val func: (List<InterpreterValue>) -> InterpreterValue) : InterpreterValue() {
+data class VLambda(val interpreterFunction: InterpreterFunction) : InterpreterValue() {
+    val argsCount: Int
+        get() = interpreterFunction.argsCount
+
+    val func: (List<InterpreterValue>) -> InterpreterValue = interpreterFunction::invoke
+
     override val type: TType
-        get() = TLambda
+        get() = TLambda(interpreterFunction)
 }
 
 

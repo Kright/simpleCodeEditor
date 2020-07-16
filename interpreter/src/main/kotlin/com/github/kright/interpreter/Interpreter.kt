@@ -7,7 +7,7 @@ import com.github.h0tk3y.betterParse.parser.ParseException
 class Interpreter(private val output: Output = Output.default()) {
     private val parser = NParser()
     private val state = InterpreterState(out = output)
-    private val astChecker = AstChecker(operators = state.operators)
+    private val astChecker = AstChecker(operators = state.operators, functions = state.functions)
 
     fun parse(code: String): Program? {
         return try {

@@ -2,7 +2,8 @@ package com.github.kright.interpreter
 
 class AstChecker(
     private val variables: HashMap<Id, TType> = HashMap(),
-    private val operators: Map<Op, BinaryOperator>
+    private val operators: Map<Op, BinaryOperator>,
+    private val functions: Map<Id, InterpreterFunction>
 ) {
     fun check(program: Program) {
         for (st in program.statements) {
@@ -10,7 +11,11 @@ class AstChecker(
         }
     }
 
-    fun copy(): AstChecker = AstChecker(variables.clone() as HashMap<Id, TType>, operators)
+    fun copy(): AstChecker = AstChecker(
+        variables = variables.clone() as HashMap<Id, TType>,
+        operators = operators,
+        functions = functions
+    )
 
     /**
      * if statement invalid, ast checker doesn't change
@@ -28,24 +33,22 @@ class AstChecker(
         }
     }
 
-    private fun inferTypes(exp: Expression): TType =
+    internal fun inferTypes(exp: Expression): TType =
         when (exp) {
             is Id -> variables[exp] ?: throw InterpreterException("use undeclared variable ${exp.name} at ${exp.info}")
             is BinOp -> inferTypes(exp)
             is NSequence -> TSeq(TInt)
             is FuncCall -> inferTypes(exp)
-            is Lambda -> TNothing // todo
+            is Lambda -> TLambda(InterpreterFunction.makeFromLambda(exp, operators, functions))
             is NReal -> toVReal(exp).type
             is NInt -> toVInt(exp).type
         }
 
-    private fun inferTypes(funcCall: FuncCall): TType {
-        if (funcCall.funcName.name != "reduce" && funcCall.funcName.name != "map") {
-            throw InterpreterException("wrong function name at ${funcCall.funcName.info}")
-        }
-        // todo check args!
-        return TNothing
-    }
+    private fun inferTypes(funcCall: FuncCall): TType =
+        functions[funcCall.funcName]?.let { func ->
+            val argsTypes = funcCall.args.map { inferTypes(it) }
+            func(argsTypes)
+        } ?: throw InterpreterException("wrong function name at ${funcCall.funcName.info}")
 
     private fun inferTypes(binOp: BinOp): TType =
         operators[binOp.op]?.let { opFunc ->

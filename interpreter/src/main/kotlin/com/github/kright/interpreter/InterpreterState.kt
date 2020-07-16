@@ -5,14 +5,14 @@ class InterpreterState(
     private val variables: HashMap<Id, InterpreterValue> = HashMap(),
     val operators: Map<Op, BinaryOperator> = BinaryOperator.defaultOperators(),
     val functions: Map<Id, InterpreterFunction> = InterpreterFunction.makeDefaultFunctions(),
-    private val out: Output = Output.default()
+    private val out: Output? = Output.default()
 ) {
     fun run(statement: Statement) {
         when (statement) {
             is PrintString ->
-                out.print(statement.string)
+                out?.print?.invoke(statement.string)
             is OutExpr ->
-                out.print(toString(eval(statement.expr)))
+                out?.print?.invoke(toString(eval(statement.expr)))
             is VarDeclaration -> {
                 if (variables.containsKey(statement.varName)) {
                     throw InterpreterException(
@@ -24,7 +24,7 @@ class InterpreterState(
         }
     }
 
-    private fun eval(e: Expression): InterpreterValue {
+    fun eval(e: Expression): InterpreterValue {
         when (e) {
             is Id ->
                 return variables[e] ?: throw InterpreterException("variable ${e.name} wasn't declared at ${e.info}")
@@ -52,33 +52,10 @@ class InterpreterState(
                     throw InterpreterException(ex.message + "\nfor function ${e.funcName.name} at ${e.info}")
                 }
             }
-            is Lambda -> return makeVLambda(e)
+            is Lambda -> return VLambda(InterpreterFunction.makeFromLambda(e, operators, functions))
             is NReal -> return toVReal(e)
             is NInt -> return toVInt(e)
         }
-    }
-
-    private fun makeVLambda(lambdaExpr: Lambda): VLambda {
-        val localInterpreter = InterpreterState(
-            variables = HashMap(),
-            operators = operators,
-            functions = functions,
-            out = out
-        )
-
-        interpreterCheck(lambdaExpr.args.distinct().size == lambdaExpr.args.size) { "same argument name declared twice in lambda" }
-
-        val func: (List<InterpreterValue>) -> InterpreterValue = { argsList ->
-            interpreterCheck(argsList.size == lambdaExpr.args.size) { "wrong arguments count!" }
-
-            for ((name, value) in lambdaExpr.args.zip(argsList)) {
-                localInterpreter.variables[name] = value
-            }
-
-            localInterpreter.eval(lambdaExpr.body)
-        }
-
-        return VLambda(lambdaExpr.args.size, func)
     }
 
     private fun toString(value: InterpreterValue): String =
