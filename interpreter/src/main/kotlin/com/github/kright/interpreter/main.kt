@@ -17,12 +17,10 @@ fun main(args: Array<String>) {
     } else {
         if (args.size > 1) {
             error("ony one arg allowed: path to file with code")
-            return
         }
         val file = File(args[0])
         if (!file.exists()) {
             error("file ${file} doesn't exist, cwd = ${File("").absolutePath}")
-            return
         }
 
         val code = file.readText()

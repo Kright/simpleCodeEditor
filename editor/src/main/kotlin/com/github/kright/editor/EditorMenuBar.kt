@@ -8,6 +8,19 @@ import javax.swing.JMenuItem
 class EditorMenuBar(private val editor: CodeEditorJFrame) : JMenuBar() {
 
     val saveItem: JMenuItem
+    private val runButton: JButton
+    private val stopButton: JButton
+
+    fun setHasRunningProgram(has: Boolean) {
+        println("setHasRunningProgram(${has})")
+        if (has){
+            runButton.isVisible = false
+            stopButton.isVisible = true
+        } else {
+            runButton.isVisible = true
+            stopButton.isVisible = false
+        }
+    }
 
     init {
         // http://java-online.ru/swing-menu.xhtml
@@ -21,8 +34,15 @@ class EditorMenuBar(private val editor: CodeEditorJFrame) : JMenuBar() {
             add(makeAction("exit") { editor.menuClose() })
         })
 
-        add(JButton("run").apply {
-            action = makeAction("run") { editor.menuRun() }
-        })
+        runButton = JButton("run").apply {
+            action = makeAction("run") { editor.menuRunOrStop() }
+        }
+        add(runButton)
+
+        stopButton = JButton("stop").apply {
+            action = makeAction("stop") { editor.menuRunOrStop() }
+        }
+        add(stopButton)
+        setHasRunningProgram(false)
     }
 }

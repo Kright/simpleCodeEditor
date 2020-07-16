@@ -17,8 +17,9 @@ class CodeEditor(private val editor: CodeEditorJFrame) : JTextPane() {
         text = f.readText()
     }
 
-    fun saveToFile(f: File) {
+    fun saveToFile(f: File): File? {
         currentFile = f
         f.writeText(text)
+        return f
     }
 }

@@ -5,6 +5,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { setUrl("https://dl.bintray.com/hotkeytlt/maven") }
 }
 
 dependencies {
@@ -16,7 +17,21 @@ version = "0.1"
 group = "com.github.kright.codeeditor"
 
 application {
-    mainClassName = "com.github.kright.editor.MainKt"
+    mainClassName = "com.github.kright.editor.EditorKt"
+}
+
+task("prepareInterpreter") {
+    dependsOn(":interpreter:distZip")
+    doLast{
+        copy {
+            from(zipTree("../interpreter/build/distributions/interpreter-0.1.zip"))
+            into("build/interpreter")
+        }
+    }
+}
+
+tasks.named("run"){
+    dependsOn("prepareInterpreter")
 }
 
 tasks {
