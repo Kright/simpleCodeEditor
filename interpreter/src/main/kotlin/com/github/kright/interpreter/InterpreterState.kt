@@ -1,13 +1,10 @@
 package com.github.kright.interpreter
 
 
-class InterpreterException(reason: String) : RuntimeException(reason)
-
-
 class InterpreterState(
     private val variables: HashMap<Id, InterpreterValue> = HashMap(),
     val operators: Map<Op, BinaryOperator> = BinaryOperator.defaultOperators(),
-    val functions: Map<Id, (List<InterpreterValue>) -> InterpreterValue> = makeDefaultFunctions(),
+    val functions: Map<Id, InterpreterFunction> = InterpreterFunction.makeDefaultFunctions(),
     private val out: Output = Output.default()
 ) {
     fun run(statement: Statement) {
@@ -93,51 +90,10 @@ class InterpreterState(
         }
 
     companion object {
-        private fun makeDefaultFunctions(): Map<Id, (List<InterpreterValue>) -> InterpreterValue> =
-            mapOf(
-                Id("map") to this::map,
-                Id("reduce") to this::reduce
-            )
-
-        private fun map(args: List<InterpreterValue>): InterpreterValue {
-            interpreterCheck(args.size == 2) { "function should have exactly 2 arguments" }
-            val s = toSequence(args[0])
-            val lambda = toLambda(args[1])
-            interpreterCheck(lambda.argsCount == 1) { "lambda should have exactrly one argument" }
-
-            val newElems = s.elements.map {
-                lambda.func(listOf(it))
-            }
-
-            return VSequence(newElems, newElems.firstOrNull()?.type ?: TNothing)
-        }
-
-        private fun reduce(args: List<InterpreterValue>): InterpreterValue {
-            interpreterCheck(args.size == 3) { "function should have exactly 3 arguments" }
-            val s = toSequence(args[0])
-            val initial = args[1]
-            val lambda = toLambda(args[2])
-            interpreterCheck(lambda.argsCount == 2) { "lambda should have exactly two arguments" }
-
-            return s.elements.fold(initial, { acc, v -> lambda.func(listOf(acc, v)) })
-        }
-
-        private inline fun interpreterCheck(cond: Boolean, msg: () -> String) {
+        inline fun interpreterCheck(cond: Boolean, msg: () -> String) {
             if (!cond) {
                 throw InterpreterException(msg())
             }
         }
-
-        private fun toSequence(v: InterpreterValue): VSequence =
-            when (v) {
-                is VSequence -> v
-                else -> throw InterpreterException("expected sequence, get ${v.type}")
-            }
-
-        private fun toLambda(v: InterpreterValue): VLambda =
-            when (v) {
-                is VLambda -> v
-                else -> throw InterpreterException("expected lambda, get ${v.type}")
-            }
     }
 }
