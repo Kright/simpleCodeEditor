@@ -6,8 +6,8 @@ import com.github.h0tk3y.betterParse.parser.ParseException
 
 class Interpreter(private val output: Output = Output.default()) {
     private val parser = NParser()
-    private val astChecker = AstChecker()
     private val state = InterpreterState(out = output)
+    private val astChecker = AstChecker(operators = state.operators)
 
     fun parse(code: String): Program? {
         return try {
@@ -21,9 +21,7 @@ class Interpreter(private val output: Output = Output.default()) {
             output.error(ex.errorResult.toString())
             null
         } catch (ex: InterpreterException) {
-            println("wtf?")
             output.error(ex.message ?: "")
-            println("wtf2!")
             null
         }
     }

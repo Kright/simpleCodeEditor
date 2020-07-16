@@ -6,8 +6,8 @@ class InterpreterException(reason: String) : RuntimeException(reason)
 
 class InterpreterState(
     private val variables: HashMap<Id, InterpreterValue> = HashMap(),
-    private val operators: Map<Op, BinaryOperator> = BinaryOperator.defaultOperators(),
-    private val functions: Map<Id, (List<InterpreterValue>) -> InterpreterValue> = makeDefaultFunctions(),
+    val operators: Map<Op, BinaryOperator> = BinaryOperator.defaultOperators(),
+    val functions: Map<Id, (List<InterpreterValue>) -> InterpreterValue> = makeDefaultFunctions(),
     private val out: Output = Output.default()
 ) {
     fun run(statement: Statement) {
@@ -56,20 +56,8 @@ class InterpreterState(
                 }
             }
             is Lambda -> return makeVLambda(e)
-            is NReal -> return try {
-                VReal(e.value.toDouble())
-            } catch (ex: NumberFormatException) {
-                throw InterpreterException("\"${e.value}\" at ${e.info} isn't a valid Real value").apply {
-                    addSuppressed(ex)
-                }
-            }
-            is NInt -> return try {
-                VInt(e.value.toLong())
-            } catch (ex: NumberFormatException) {
-                throw InterpreterException("\"${e.value}\" at ${e.info} isn't a valid Int value").apply {
-                    addSuppressed(ex)
-                }
-            }
+            is NReal -> return toVReal(e)
+            is NInt -> return toVInt(e)
         }
     }
 

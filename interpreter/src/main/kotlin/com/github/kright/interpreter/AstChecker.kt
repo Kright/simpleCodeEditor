@@ -1,14 +1,16 @@
 package com.github.kright.interpreter
 
-class AstChecker(private val variables: HashMap<Id, TType> = HashMap()) {
-
+class AstChecker(
+    private val variables: HashMap<Id, TType> = HashMap(),
+    private val operators: Map<Op, BinaryOperator>
+) {
     fun check(program: Program) {
         for (st in program.statements) {
             check(st)
         }
     }
 
-    fun copy(): AstChecker = AstChecker(variables.clone() as HashMap<Id, TType>)
+    fun copy(): AstChecker = AstChecker(variables.clone() as HashMap<Id, TType>, operators)
 
     /**
      * if statement invalid, ast checker doesn't change
@@ -29,12 +31,12 @@ class AstChecker(private val variables: HashMap<Id, TType> = HashMap()) {
     private fun inferTypes(exp: Expression): TType =
         when (exp) {
             is Id -> variables[exp] ?: throw InterpreterException("use undeclared variable ${exp.name} at ${exp.info}")
-            is BinOp -> TNothing // todo
+            is BinOp -> inferTypes(exp)
             is NSequence -> TSeq(TInt)
             is FuncCall -> inferTypes(exp)
             is Lambda -> TNothing // todo
-            is NReal -> TNothing // todo check conversion
-            is NInt -> TNothing // todo check conversion
+            is NReal -> toVReal(exp).type
+            is NInt -> toVInt(exp).type
         }
 
     private fun inferTypes(funcCall: FuncCall): TType {
@@ -44,4 +46,9 @@ class AstChecker(private val variables: HashMap<Id, TType> = HashMap()) {
         // todo check args!
         return TNothing
     }
+
+    private fun inferTypes(binOp: BinOp): TType =
+        operators[binOp.op]?.let { opFunc ->
+            opFunc(inferTypes(binOp.left), inferTypes(binOp.right))
+        } ?: throw InterpreterException("invalid operator ${binOp.op.name} at ${binOp.op.info}")
 }

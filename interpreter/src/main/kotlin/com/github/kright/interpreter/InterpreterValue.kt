@@ -30,3 +30,20 @@ data class VLambda(val argsCount: Int, val func: (List<InterpreterValue>) -> Int
     override val type: TType
         get() = TLambda
 }
+
+
+internal fun toVReal(e: NReal): VReal = try {
+    VReal(e.value.toDouble())
+} catch (ex: NumberFormatException) {
+    throw InterpreterException("\"${e.value}\" at ${e.info} isn't a valid Real value").apply {
+        addSuppressed(ex)
+    }
+}
+
+internal fun toVInt(e: NInt): VInt = try {
+    VInt(e.value.toLong())
+} catch (ex: NumberFormatException) {
+    throw InterpreterException("\"${e.value}\" at ${e.info} isn't a valid Int value").apply {
+        addSuppressed(ex)
+    }
+}
