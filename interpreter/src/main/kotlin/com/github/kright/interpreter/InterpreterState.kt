@@ -3,26 +3,6 @@ package com.github.kright.interpreter
 import kotlin.math.pow
 
 
-/**
- * data classes for internal data representation in interpreter
- */
-sealed class InterpreterValue
-
-data class VInt(val value: Long) : InterpreterValue()
-data class VReal(val value: Double) : InterpreterValue()
-data class VSequence(val elements: List<InterpreterValue>) : InterpreterValue()
-data class VLambda(val argsCount: Int, val func: (List<InterpreterValue>) -> InterpreterValue) : InterpreterValue()
-
-
-fun getTypeDescription(v: InterpreterValue): String =
-    when (v) {
-        is VInt -> "int"
-        is VReal -> "real"
-        is VSequence -> "sequence"
-        is VLambda -> "lambda"
-    }
-
-
 class InterpreterException(reason: String) : RuntimeException(reason)
 
 
@@ -68,7 +48,7 @@ class InterpreterState(
                 val right = eval(e.right).let {
                     toVInt(it) ?: throw InterpreterException("expected int in sequence at ${e.right.info}")
                 }
-                return VSequence((left.value..right.value).asSequence().map { VInt(it) }.toList())
+                return VSequence((left.value..right.value).asSequence().map { VInt(it) }.toList(), TInt)
             }
             is FuncCall -> {
                 val func = functions[e.funcName]
@@ -80,14 +60,13 @@ class InterpreterState(
                 }
             }
             is Lambda -> return makeVLambda(e)
-            is NReal ->
-                return try {
-                    VReal(e.value.toDouble())
-                } catch (ex: NumberFormatException) {
-                    throw InterpreterException("\"${e.value}\" at ${e.info} isn't a valid Real value").apply {
-                        addSuppressed(ex)
-                    }
+            is NReal -> return try {
+                VReal(e.value.toDouble())
+            } catch (ex: NumberFormatException) {
+                throw InterpreterException("\"${e.value}\" at ${e.info} isn't a valid Real value").apply {
+                    addSuppressed(ex)
                 }
+            }
             is NInt -> return try {
                 VInt(e.value.toLong())
             } catch (ex: NumberFormatException) {
@@ -164,9 +143,11 @@ class InterpreterState(
             val lambda = toLambda(args[1])
             interpreterCheck(lambda.argsCount == 1) { "lambda should have exactrly one argument" }
 
-            return VSequence(s.elements.map {
+            val newElems = s.elements.map {
                 lambda.func(listOf(it))
-            })
+            }
+
+            return VSequence(newElems, newElems.firstOrNull()?.type ?: TNothing)
         }
 
         private fun reduce(args: List<InterpreterValue>): InterpreterValue {
@@ -195,19 +176,19 @@ class InterpreterState(
             when (v) {
                 is VInt -> VReal(v.value.toDouble())
                 is VReal -> v
-                else -> throw InterpreterException("expected real, get ${getTypeDescription(v)}")
+                else -> throw InterpreterException("expected real, get ${v.type}")
             }
 
         private fun toSequence(v: InterpreterValue): VSequence =
             when (v) {
                 is VSequence -> v
-                else -> throw InterpreterException("expected sequence, get ${getTypeDescription(v)}")
+                else -> throw InterpreterException("expected sequence, get ${v.type}")
             }
 
         private fun toLambda(v: InterpreterValue): VLambda =
             when (v) {
                 is VLambda -> v
-                else -> throw InterpreterException("expected lambda, get ${getTypeDescription(v)}")
+                else -> throw InterpreterException("expected lambda, get ${v.type}")
             }
     }
 }
