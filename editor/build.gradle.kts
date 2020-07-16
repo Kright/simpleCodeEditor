@@ -5,12 +5,10 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { setUrl("https://dl.bintray.com/hotkeytlt/maven") }
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation(project(":interpreter"))
 }
 
 version = "0.1"
