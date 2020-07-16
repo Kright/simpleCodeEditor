@@ -1,14 +1,12 @@
 package com.github.kright.interpreter
 
-import kotlin.math.pow
-
 
 class InterpreterException(reason: String) : RuntimeException(reason)
 
 
 class InterpreterState(
     private val variables: HashMap<Id, InterpreterValue> = HashMap(),
-    private val operators: Map<Op, (InterpreterValue, InterpreterValue) -> InterpreterValue> = makeDefaultOperators(),
+    private val operators: Map<Op, BinaryOperator> = BinaryOperator.defaultOperators(),
     private val functions: Map<Id, (List<InterpreterValue>) -> InterpreterValue> = makeDefaultFunctions(),
     private val out: Output = Output.default()
 ) {
@@ -42,12 +40,10 @@ class InterpreterState(
                 }
             }
             is NSequence -> {
-                val left = eval(e.left).let {
-                    toVInt(it) ?: throw InterpreterException("expected int in sequence at ${e.left.info}")
-                }
-                val right = eval(e.right).let {
-                    toVInt(it) ?: throw InterpreterException("expected int in sequence at ${e.right.info}")
-                }
+                val left =
+                    eval(e.left).toVInt() ?: throw InterpreterException("expected int in sequence at ${e.left.info}")
+                val right =
+                    eval(e.right).toVInt() ?: throw InterpreterException("expected int in sequence at ${e.right.info}")
                 return VSequence((left.value..right.value).asSequence().map { VInt(it) }.toList(), TInt)
             }
             is FuncCall -> {
@@ -109,33 +105,11 @@ class InterpreterState(
         }
 
     companion object {
-        private fun binOp(
-            f1: (Long, Long) -> Long,
-            f2: (Double, Double) -> Double
-        ): (InterpreterValue, InterpreterValue) -> InterpreterValue = { a, b ->
-            if (a is VInt && b is VInt) {
-                VInt(f1(a.value, b.value))
-            } else {
-                VReal(f2(toVReal(a).value, toVReal(b).value))
-            }
-        }
-
-        private fun makeDefaultOperators(): Map<Op, (InterpreterValue, InterpreterValue) -> InterpreterValue> =
-            mapOf(
-                Op("+") to binOp({ i, j -> i + j }, { i, j -> i + j }),
-                Op("-") to binOp({ i, j -> i - j }, { i, j -> i - j }),
-                Op("*") to binOp({ i, j -> i * j }, { i, j -> i * j }),
-                Op("/") to binOp({ i, j -> i / j }, { i, j -> i / j }),
-                Op("^") to this::pow
-            )
-
         private fun makeDefaultFunctions(): Map<Id, (List<InterpreterValue>) -> InterpreterValue> =
             mapOf(
                 Id("map") to this::map,
                 Id("reduce") to this::reduce
             )
-
-        private fun pow(a: InterpreterValue, b: InterpreterValue) = VReal(toVReal(a).value.pow(toVReal(b).value))
 
         private fun map(args: List<InterpreterValue>): InterpreterValue {
             interpreterCheck(args.size == 2) { "function should have exactly 2 arguments" }
@@ -165,19 +139,6 @@ class InterpreterState(
                 throw InterpreterException(msg())
             }
         }
-
-        private fun toVInt(v: InterpreterValue): VInt? =
-            when (v) {
-                is VInt -> v
-                else -> null
-            }
-
-        private fun toVReal(v: InterpreterValue): VReal =
-            when (v) {
-                is VInt -> VReal(v.value.toDouble())
-                is VReal -> v
-                else -> throw InterpreterException("expected real, get ${v.type}")
-            }
 
         private fun toSequence(v: InterpreterValue): VSequence =
             when (v) {

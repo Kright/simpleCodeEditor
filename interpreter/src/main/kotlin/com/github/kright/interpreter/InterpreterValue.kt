@@ -5,7 +5,14 @@ package com.github.kright.interpreter
  */
 sealed class InterpreterValue {
     abstract val type: TType
+
+    fun toVInt(): VInt? =
+        when (this) {
+            is VInt -> this
+            else -> null
+        }
 }
+
 
 data class VInt(val value: Long) : InterpreterValue() {
     override val type: TType
