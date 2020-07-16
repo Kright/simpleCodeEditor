@@ -9,7 +9,6 @@ import javax.swing.SwingUtilities
 
 
 class CodeEditorJFrame() : JFrame("code editor") {
-
     val menuBar: EditorMenuBar
     val codeEditor: CodeEditor
     val programOutput: ProgramOutput
@@ -60,7 +59,7 @@ class CodeEditorJFrame() : JFrame("code editor") {
     }
 
     fun menuRun() {
-
+        println("TODO run code!")
     }
 
     fun menuSave() {

@@ -10,7 +10,6 @@ class EditorMenuBar(private val editor: CodeEditorJFrame) : JMenuBar() {
     val saveItem: JMenuItem
 
     init {
-
         // http://java-online.ru/swing-menu.xhtml
         add(JMenu("File").apply {
             add(makeAction("open") { editor.menuOpenFile() })

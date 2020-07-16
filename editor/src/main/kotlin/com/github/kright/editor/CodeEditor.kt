@@ -4,7 +4,6 @@ import java.io.File
 import javax.swing.JTextPane
 
 class CodeEditor(private val editor: CodeEditorJFrame) : JTextPane() {
-
     var currentFile: File? = null
         get() = field
         set(value) {
