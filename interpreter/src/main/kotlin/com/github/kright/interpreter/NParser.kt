@@ -11,6 +11,10 @@ import com.github.h0tk3y.betterParse.parser.Parser
 private typealias Info = ConcreteSyntaxInfo
 
 
+/**
+ * parse string to syntax tree
+ * don't check types, names of functions and variables, range of long and double values
+ */
 class NParser : Grammar<Program>() {
     val varRaw by literalToken("var")
     val outRaw by literalToken("out")
@@ -39,13 +43,13 @@ class NParser : Grammar<Program>() {
     val nRealRaw by regexToken("[\\+\\-]?\\d[\\d_]*\\.[\\d_]*")
     val nReal: Parser<NReal> by (addSubMaybe and nRealRaw).map { (op, real) ->
         val sign = if (op == Op("-")) "-" else ""
-        NReal((sign + real.text).filter { it.isDigit() || it == '-' || it == '.' }.toDouble(), Info(real))
+        NReal((sign + real.text).filter { it.isDigit() || it == '-' || it == '.' }, Info(real))
     }
 
     val nIntRaw by regexToken("[\\+\\-]?\\d[\\d_]*")
     val nInt: Parser<NInt> by (addSubMaybe and nIntRaw).map { (op, int) ->
         val sign = if (op == Op("-")) "-" else ""
-        NInt((sign + int.text).filter { it.isDigit() || it == '-' }.toLong(), Info(int))
+        NInt((sign + int.text).filter { it.isDigit() || it == '-' }, Info(int))
     }
 
     val stringRaw by regexToken("\\\"[^\\\"]*\\\"")

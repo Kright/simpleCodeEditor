@@ -1,6 +1,14 @@
 package com.github.kright.interpreter
 
-class OperatorsPriority(val levels: List<Set<Op>>) {
+
+/**
+ * construct tree of BinOp form lists of terms and separators according to priorities
+ * all operators assumed to be left-associative
+ * operators at levels[0] have the highest priority
+ *
+ * for example, for terms [a, b, c, d] and separators [+, *, -] result should be ((a + (b * c)) - d)
+ */
+class OperatorsPriority(private val levels: List<Set<Op>>) {
     fun usePriorities(terms: List<Expression>, separators: List<Op>): Expression {
         val (resultTerms, resultSeparators) = levels.fold(Pair(terms, separators), this::foldOperators)
         check(resultTerms.size == 1)

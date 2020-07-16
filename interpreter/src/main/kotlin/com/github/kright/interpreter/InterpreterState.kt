@@ -2,6 +2,10 @@ package com.github.kright.interpreter
 
 import kotlin.math.pow
 
+
+/**
+ * data classes for internal data representation in interpreter
+ */
 sealed class InterpreterValue
 
 data class VInt(val value: Long) : InterpreterValue()
@@ -76,8 +80,21 @@ class InterpreterState(
                 }
             }
             is Lambda -> return makeVLambda(e)
-            is NReal -> return VReal(e.value)
-            is NInt -> return VInt(e.value)
+            is NReal ->
+                return try {
+                    VReal(e.value.toDouble())
+                } catch (ex: NumberFormatException) {
+                    throw InterpreterException("\"${e.value}\" at ${e.info} isn't a valid Real value").apply {
+                        addSuppressed(ex)
+                    }
+                }
+            is NInt -> return try {
+                VInt(e.value.toLong())
+            } catch (ex: NumberFormatException) {
+                throw InterpreterException("\"${e.value}\" at ${e.info} isn't a valid Int value").apply {
+                    addSuppressed(ex)
+                }
+            }
         }
     }
 

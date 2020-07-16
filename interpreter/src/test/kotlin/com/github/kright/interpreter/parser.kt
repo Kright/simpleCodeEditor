@@ -10,6 +10,8 @@ class ParserTest : FunSpec({
 
     fun <T> Parser<T>.parseToEnd(code: String): T = parseToEnd(nParser.tokenizer.tokenize(code))
 
+    fun NInt(long: Long) = NInt(long.toString())
+
     test("var declaration") {
         nParser.parseToEnd("var i = j")
             .shouldBe(Program(listOf(VarDeclaration(Id("i"), Id("j")))))
@@ -23,7 +25,7 @@ class ParserTest : FunSpec({
             parser.apply {
                 parseToEnd("out 1") shouldBe OutExpr(NInt(1))
                 parseToEnd("out id") shouldBe OutExpr(Id("id"))
-                parseToEnd("out -1.3") shouldBe OutExpr(NReal(-1.3))
+                parseToEnd("out -1.3") shouldBe OutExpr(NReal("-1.3"))
             }
         }
     }
@@ -57,14 +59,14 @@ class ParserTest : FunSpec({
     test("real parsing") {
         for (parser in arrayOf(nParser.nReal, nParser.number)) {
             parser.apply {
-                parseToEnd("1.0") shouldBe NReal(1.0)
-                parseToEnd("0.1") shouldBe NReal(0.1)
-                parseToEnd("0.") shouldBe NReal(0.0)
-                parseToEnd("+1.0") shouldBe NReal(1.0)
-                parseToEnd("-1.0") shouldBe NReal(-1.0)
-                parseToEnd("-0.12") shouldBe NReal(-0.12)
-                parseToEnd("-45.12") shouldBe NReal(-45.12)
-                parseToEnd("12_34.56_78") shouldBe NReal(1234.5678)
+                parseToEnd("1.0") shouldBe NReal("1.0")
+                parseToEnd("0.1") shouldBe NReal("0.1")
+                parseToEnd("0.") shouldBe NReal("0.")
+                parseToEnd("+1.0") shouldBe NReal("1.0")
+                parseToEnd("-1.0") shouldBe NReal("-1.0")
+                parseToEnd("-0.12") shouldBe NReal("-0.12")
+                parseToEnd("-45.12") shouldBe NReal("-45.12")
+                parseToEnd("12_34.56_78") shouldBe NReal("1234.5678")
             }
         }
     }
@@ -80,7 +82,7 @@ class ParserTest : FunSpec({
             parser.apply {
                 parseToEnd("(1)") shouldBe NInt(1)
                 parseToEnd("(name)") shouldBe Id("name")
-                parseToEnd("(((1.0)))") shouldBe NReal(1.0)
+                parseToEnd("(((1.0)))") shouldBe NReal("1.0")
             }
         }
     }
@@ -89,7 +91,7 @@ class ParserTest : FunSpec({
         for (parser in arrayOf(nParser.sequence, nParser.expression)) {
             parser.apply {
                 parseToEnd("{1, 2}") shouldBe NSequence(NInt(1), NInt(2))
-                parseToEnd("{name, 2.3}") shouldBe NSequence(Id("name"), NReal(2.3))
+                parseToEnd("{name, 2.3}") shouldBe NSequence(Id("name"), NReal("2.3"))
             }
         }
     }

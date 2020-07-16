@@ -3,8 +3,10 @@ package com.github.kright.interpreter
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 
 
+/**
+ * all concrete syntax objects info are equal, so Id("name", info1) == Id("name", info2)
+ */
 class ConcreteSyntaxInfo(val tokenMatch: TokenMatch? = null) {
-    // all concrete syntax info are equal, so Id("name", x) == Id("name", y)
     override fun hashCode(): Int = 42
     override fun equals(other: Any?): Boolean = other is ConcreteSyntaxInfo
     override fun toString(): String = tokenMatch.toString()
@@ -33,8 +35,8 @@ data class Lambda(val args: List<Id>, val body: Expression) : Expression() {
 }
 
 sealed class NNumber : Expression()
-data class NReal(val value: Double, override val info: ConcreteSyntaxInfo = ConcreteSyntaxInfo()) : NNumber()
-data class NInt(val value: Long, override val info: ConcreteSyntaxInfo = ConcreteSyntaxInfo()) : NNumber()
+data class NReal(val value: String, override val info: ConcreteSyntaxInfo = ConcreteSyntaxInfo()) : NNumber()
+data class NInt(val value: String, override val info: ConcreteSyntaxInfo = ConcreteSyntaxInfo()) : NNumber()
 
 sealed class Statement
 
