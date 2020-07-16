@@ -10,8 +10,6 @@ fun main(args: Array<String>) {
         val interpreter = Interpreter(output = output)
 
         output.print("welcome to REPL mode")
-        interpreter.run("out reduce({1,3}, 1.0, i j -> i^j)")
-        interpreter.run("out reduce(map({1, 3}, i -> {1, 2}), {1, 3}, i j -> i^j)")
         while (true) {
             readLine()?.also {
                 interpreter.run(it)
