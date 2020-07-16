@@ -101,7 +101,8 @@ interface InterpreterFunction {
             override fun invoke(args: List<InterpreterValue>): InterpreterValue {
                 InterpreterState.interpreterCheck(args.size == 3) { "function should have exactly 3 arguments" }
                 val s = toSequence(args[0])
-                val initial = args[1] // todo check it's not a lambda
+                val initial = args[1]
+                InterpreterState.interpreterCheck(initial !is VLambda) { "second argument should be expression, not lambda" }
                 val lambda = toLambda(args[2])
                 InterpreterState.interpreterCheck(lambda.argsCount == 2) { "lambda should have exactly two arguments" }
 
@@ -111,14 +112,14 @@ interface InterpreterFunction {
             override fun invoke(args: List<TType>): TType {
                 InterpreterState.interpreterCheck(args.size == 3) { "function should have exactly 3 arguments" }
                 val s = toSequence(args[0])
-                val initial = args[1] // todo check
+                val initial = args[1]
+                InterpreterState.interpreterCheck(initial !is TLambda) { "second argument should be expression, not lambda" }
                 val lambda = toLambda(args[2])
 
                 val result = lambda.lambda(listOf(initial, s.elements))
                 InterpreterState.interpreterCheck(result == initial) {
                     "reduction result $result, but expected $initial"
                 }
-                // todo check case with reduce({1:3}, 1, i j -> i^j)
                 return result
             }
         }

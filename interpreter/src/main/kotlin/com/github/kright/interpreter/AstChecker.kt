@@ -18,7 +18,7 @@ class AstChecker(
     )
 
     /**
-     * if statement invalid, ast checker doesn't change
+     * if statement invalid, ast checker remains constant
      */
     fun check(statement: Statement) {
         when (statement) {
@@ -52,6 +52,10 @@ class AstChecker(
 
     private fun inferTypes(binOp: BinOp): TType =
         operators[binOp.op]?.let { opFunc ->
-            opFunc(inferTypes(binOp.left), inferTypes(binOp.right))
+            try {
+                opFunc(inferTypes(binOp.left), inferTypes(binOp.right))
+            } catch (ex: InterpreterException) {
+                throw InterpreterException(ex.message + " at ${binOp.op.info}")
+            }
         } ?: throw InterpreterException("invalid operator ${binOp.op.name} at ${binOp.op.info}")
 }
