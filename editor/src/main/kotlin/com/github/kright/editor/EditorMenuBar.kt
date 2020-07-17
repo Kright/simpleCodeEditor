@@ -12,7 +12,6 @@ class EditorMenuBar(private val editor: CodeEditorJFrame) : JMenuBar() {
     private val stopButton: JButton
 
     fun setHasRunningProgram(has: Boolean) {
-        println("setHasRunningProgram(${has})")
         if (has){
             runButton.isVisible = false
             stopButton.isVisible = true
