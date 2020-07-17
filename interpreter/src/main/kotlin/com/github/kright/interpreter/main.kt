@@ -9,7 +9,6 @@ fun main(args: Array<String>) {
 
     if (args.isEmpty()) {
         output.print("welcome to REPL mode")
-        interpreter.run(File("/home/lgor/Desktop/prog2.py").readText())
         while (true) {
             readLine()?.also {
                 interpreter.run(it)

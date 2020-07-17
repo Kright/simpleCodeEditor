@@ -16,9 +16,9 @@ private typealias Info = ConcreteSyntaxInfo
  * don't check types, names of functions and variables, range of long and double values
  */
 class NParser : Grammar<Program>() {
-    val varRaw by literalToken("var")
-    val outRaw by literalToken("out")
-    val printRaw by literalToken("print")
+    val varRaw by regexToken("var\\s")
+    val outRaw by regexToken("out\\s")
+    val printRaw by regexToken("print\\s")
     val assignRaw by literalToken("=")
     val bracketRoundL by literalToken("(")
     val bracketRoundR by literalToken(")")

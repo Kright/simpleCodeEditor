@@ -18,6 +18,9 @@ class ParserTest : FunSpec({
 
         nParser.parseToEnd("var abc = 12")
             .shouldBe(Program(listOf(VarDeclaration(Id("abc"), NInt(12)))))
+
+        nParser.parseToEnd("var variable = 12")
+            .shouldBe(Program(listOf(VarDeclaration(Id("variable"), NInt(12)))))
     }
 
     test("out expression") {
@@ -26,6 +29,7 @@ class ParserTest : FunSpec({
                 parseToEnd("out 1") shouldBe OutExpr(NInt(1))
                 parseToEnd("out id") shouldBe OutExpr(Id("id"))
                 parseToEnd("out -1.3") shouldBe OutExpr(NReal("-1.3"))
+                parseToEnd("out output") shouldBe OutExpr(Id("output"))
             }
         }
     }
