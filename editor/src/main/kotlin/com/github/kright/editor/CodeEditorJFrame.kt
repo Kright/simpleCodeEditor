@@ -74,7 +74,6 @@ class CodeEditorJFrame : JFrame("code editor") {
     }
 
     fun menuRunOrStop() {
-        /*
         val savedFile =
             if (codeEditor.currentFile == null) {
                 menuSaveAs()
@@ -83,9 +82,9 @@ class CodeEditorJFrame : JFrame("code editor") {
             }
 
         if (savedFile == null) {
-            return false
+            return
         }
-        */
+
         synchronized(lock) {
             if (interpreterWrapper != null) {
                 interpreterWrapper = null
@@ -93,7 +92,7 @@ class CodeEditorJFrame : JFrame("code editor") {
             }
         }
 
-        runFile(File("scripts/code.p"))
+        runFile(savedFile)
     }
 
     private fun runFile(file: File) {
