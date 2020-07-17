@@ -25,7 +25,6 @@ interface BinaryOperator {
                         else -> wrongTypes(first.type, second.type)
                     }
 
-
                 override fun invoke(first: TType, second: TType): TType =
                     when (first) {
                         TInt -> when (second) {
