@@ -1,6 +1,8 @@
 package com.github.kright.editor
 
-import java.awt.BorderLayout
+import java.awt.Dimension
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
 import java.awt.event.WindowEvent
 import java.io.File
 import javax.swing.JFileChooser
@@ -37,14 +39,29 @@ class CodeEditorJFrame : JFrame("code editor") {
         codeEditor = CodeEditor(this)
 
         programOutput = ProgramOutput().apply {
-            println("program output")
-            error("error text")
+            println("program output:")
         }
 
-        jMenuBar = menuBar
-        contentPane.add(JScrollPane(codeEditor), BorderLayout.CENTER)
-        contentPane.add(JScrollPane(programOutput), BorderLayout.PAGE_END)
+        layout = GridBagLayout()
+        val codeEditorConstraints = GridBagConstraints().apply {
+            fill = GridBagConstraints.BOTH
+            weighty = 1.0
+            weightx = 1.0
+            gridy = 0
+        }
 
+        val programOutputConstraints = GridBagConstraints().apply {
+            fill = GridBagConstraints.BOTH
+            weighty = 0.25
+            weightx = 1.0
+            gridy = 1
+        }
+
+        minimumSize = Dimension(400, 200)
+
+        jMenuBar = menuBar
+        contentPane.add(JScrollPane(codeEditor), codeEditorConstraints)
+        contentPane.add(JScrollPane(programOutput), programOutputConstraints)
 
         pack()
         isVisible = true
