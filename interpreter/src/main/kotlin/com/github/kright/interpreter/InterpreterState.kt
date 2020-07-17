@@ -11,8 +11,10 @@ class InterpreterState(
         when (statement) {
             is PrintString ->
                 out?.print?.invoke(statement.string)
-            is OutExpr ->
-                out?.print?.invoke(toString(eval(statement.expr)))
+            is OutExpr -> {
+                val expr = eval(statement.expr)
+                out?.print?.invoke(toString(expr))
+            }
             is VarDeclaration -> {
                 if (variables.containsKey(statement.varName)) {
                     throw InterpreterException(
