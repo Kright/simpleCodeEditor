@@ -4,12 +4,12 @@ import java.io.File
 
 
 fun main(args: Array<String>) {
+    val output = Output(print = { println(it) }, error = { System.err.println(it) })
+    val interpreter = Interpreter(output = output)
 
     if (args.isEmpty()) {
-        val output = Output(print = { println(it) }, error = { System.err.println(it) })
-        val interpreter = Interpreter(output = output)
-
         output.print("welcome to REPL mode")
+        interpreter.run(File("/home/lgor/Desktop/prog2.py").readText())
         while (true) {
             readLine()?.also {
                 interpreter.run(it)
@@ -25,7 +25,6 @@ fun main(args: Array<String>) {
         }
 
         val code = file.readText()
-        val interpreter = Interpreter(Output(print = { println(it) }, error = { error(it) }))
         interpreter.run(code)
     }
 }
