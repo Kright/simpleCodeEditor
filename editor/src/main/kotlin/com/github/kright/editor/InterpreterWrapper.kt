@@ -3,6 +3,7 @@ package com.github.kright.editor
 import com.github.kright.interpreter.Output
 import java.io.BufferedReader
 import java.io.File
+import java.io.IOException
 import java.io.InputStreamReader
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -27,9 +28,16 @@ class InterpreterWrapper {
         ): InterpreterWrapper {
             val result = InterpreterWrapper()
 
+
             thread {
-                val processBuilder = ProcessBuilder(interpreterPath.absolutePath, code.absolutePath)
-                val process = processBuilder.start()
+                val process = try {
+                    ProcessBuilder(interpreterPath.absolutePath, code.absolutePath).start()
+                } catch (ex: IOException) {
+                    output.error(ex.message ?: "")
+                    result.stop()
+                    stopCallback(result)
+                    return@thread
+                }
                 output.error("run ${code.path}")
 
                 val inputStream = BufferedReader(InputStreamReader(process.inputStream))
