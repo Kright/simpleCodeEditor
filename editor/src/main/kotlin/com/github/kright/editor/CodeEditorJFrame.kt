@@ -1,14 +1,9 @@
 package com.github.kright.editor
 
 import java.awt.Dimension
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
 import java.awt.event.WindowEvent
 import java.io.File
-import javax.swing.JFileChooser
-import javax.swing.JFrame
-import javax.swing.JScrollPane
-import javax.swing.SwingUtilities
+import javax.swing.*
 
 class CodeEditorJFrame : JFrame("code editor") {
     val menuBar: EditorMenuBar
@@ -42,26 +37,25 @@ class CodeEditorJFrame : JFrame("code editor") {
             println("program output:")
         }
 
-        layout = GridBagLayout()
-        val codeEditorConstraints = GridBagConstraints().apply {
-            fill = GridBagConstraints.BOTH
-            weighty = 1.0
-            weightx = 1.0
-            gridy = 0
-        }
+        val splitPane = JSplitPane(
+            JSplitPane.VERTICAL_SPLIT,
+            JScrollPane(codeEditor).apply {
+                minimumSize = Dimension(200, 100)
+                preferredSize = Dimension(800, 600 )
+            },
+            JScrollPane(programOutput).apply {
+                minimumSize = Dimension(200, 50)
+                preferredSize = Dimension(800, 200)
+            }
+        )
 
-        val programOutputConstraints = GridBagConstraints().apply {
-            fill = GridBagConstraints.BOTH
-            weighty = 0.25
-            weightx = 1.0
-            gridy = 1
+        splitPane.apply {
+            resizeWeight = 1.0
+            isOneTouchExpandable = true
         }
-
-        minimumSize = Dimension(400, 200)
 
         jMenuBar = menuBar
-        contentPane.add(JScrollPane(codeEditor), codeEditorConstraints)
-        contentPane.add(JScrollPane(programOutput), programOutputConstraints)
+        contentPane.add(splitPane)
 
         pack()
         isVisible = true
