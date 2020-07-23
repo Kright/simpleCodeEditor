@@ -1,6 +1,5 @@
 package com.github.kright.editor
 
-import java.awt.Dimension
 import java.awt.event.WindowEvent
 import java.io.File
 import javax.swing.*
@@ -9,6 +8,7 @@ class CodeEditorJFrame : JFrame("code editor") {
     private val menuBar: EditorMenuBar
     private val codeEditor: CodeEditor
     private val programOutput: ProgramOutput
+    private val settings = EditorSettings()
     private val lock = Object()
 
     private var interpreterWrapper: InterpreterWrapper? = null
@@ -32,19 +32,19 @@ class CodeEditorJFrame : JFrame("code editor") {
         menuBar = EditorMenuBar(this)
         codeEditor = CodeEditor(this)
 
-        programOutput = ProgramOutput(maxOutputLength = 10000).apply {
+        programOutput = ProgramOutput(maxOutputLength = settings.maxOutputLength).apply {
             println("program output:")
         }
 
         val splitPane = JSplitPane(
             JSplitPane.VERTICAL_SPLIT,
             JScrollPane(codeEditor).apply {
-                minimumSize = Dimension(200, 100)
-                preferredSize = Dimension(800, 600)
+                minimumSize = settings.code.minimumSize
+                preferredSize = settings.code.preferredSize
             },
             JScrollPane(programOutput).apply {
-                minimumSize = Dimension(200, 50)
-                preferredSize = Dimension(800, 200)
+                minimumSize = settings.programOutput.minimumSize
+                preferredSize = settings.programOutput.preferredSize
             }
         )
 
@@ -98,7 +98,7 @@ class CodeEditorJFrame : JFrame("code editor") {
         programOutput.clear()
 
         interpreterWrapper = InterpreterWrapper.runCode(
-            File("build/interpreter/interpreter-0.1/bin/interpreter"),
+            File(settings.interpreterPath),
             code,
             programOutput.output
         ) { wrapper ->
