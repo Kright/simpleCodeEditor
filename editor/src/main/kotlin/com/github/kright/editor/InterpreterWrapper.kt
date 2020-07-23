@@ -20,25 +20,23 @@ class InterpreterWrapper {
         get() = isFinished.get()
 
     companion object {
-        fun runFile(
+        fun runCode(
             interpreterPath: File,
-            code: File,
+            code: String,
             output: Output,
             stopCallback: (InterpreterWrapper) -> Unit
         ): InterpreterWrapper {
             val result = InterpreterWrapper()
-
-
             thread {
                 val process = try {
-                    ProcessBuilder(interpreterPath.absolutePath, code.absolutePath).start()
+                    ProcessBuilder(interpreterPath.absolutePath, "-c" ,code).start()
                 } catch (ex: IOException) {
                     output.error(ex.message ?: "")
                     result.stop()
                     stopCallback(result)
                     return@thread
                 }
-                output.error("run ${code.path}")
+                output.error("run ${code}")
 
                 val inputStream = BufferedReader(InputStreamReader(process.inputStream))
                 val errorStream = BufferedReader(InputStreamReader(process.errorStream))

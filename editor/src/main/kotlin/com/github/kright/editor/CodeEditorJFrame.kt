@@ -85,17 +85,6 @@ class CodeEditorJFrame : JFrame("code editor") {
     }
 
     fun menuRunOrStop() {
-        val savedFile =
-            if (codeEditor.currentFile == null) {
-                menuSaveAs()
-            } else {
-                menuSave()
-            }
-
-        if (savedFile == null) {
-            return
-        }
-
         synchronized(lock) {
             if (interpreterWrapper != null) {
                 interpreterWrapper = null
@@ -103,19 +92,19 @@ class CodeEditorJFrame : JFrame("code editor") {
             }
         }
 
-        runFile(savedFile)
+        runCode(codeEditor.text)
     }
 
-    private fun runFile(file: File) {
+    private fun runCode(code: String) {
         programOutput.clear()
 
-        interpreterWrapper = InterpreterWrapper.runFile(
+        interpreterWrapper = InterpreterWrapper.runCode(
             File("build/interpreter/interpreter-0.1/bin/interpreter"),
-            file ,
+            code,
             programOutput.output
         ) { wrapper ->
             synchronized(lock) {
-                // if wrapper isn't changed
+                // if wrapper wasn't changed
                 if (interpreterWrapper == wrapper) {
                     interpreterWrapper = null
                 }
