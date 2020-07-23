@@ -33,7 +33,7 @@ class CodeEditorJFrame : JFrame("code editor") {
         menuBar = EditorMenuBar(this)
         codeEditor = CodeEditor(this)
 
-        programOutput = ProgramOutput().apply {
+        programOutput = ProgramOutput(maxOutputLength = 10000).apply {
             println("program output:")
         }
 

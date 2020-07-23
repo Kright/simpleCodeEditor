@@ -8,8 +8,9 @@ import javax.swing.SwingUtilities
 import javax.swing.text.SimpleAttributeSet
 import javax.swing.text.StyleConstants
 import javax.swing.text.StyleContext
+import kotlin.math.min
 
-class ProgramOutput : JTextPane() {
+class ProgramOutput(private val maxOutputLength: Int) : JTextPane() {
     val output: Output
 
     init {
@@ -29,7 +30,9 @@ class ProgramOutput : JTextPane() {
         )
     }
 
-    fun appendText(text: String, color: Color) {
+    private fun appendText(text: String, color: Color) {
+        truncateDocumentBeginning((this.text.length + text.length - maxOutputLength))
+
         val sc = StyleContext.getDefaultStyleContext()
         var aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, color)
         aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
@@ -38,8 +41,21 @@ class ProgramOutput : JTextPane() {
         isEditable = true
         caretPosition = document.length
         setCharacterAttributes(aset, false)
-        replaceSelection(text)
+        replaceSelection(truncateStringLength(text))
         isEditable = false
+    }
+
+    private fun truncateStringLength(text: String): String {
+        if (text.length <= maxOutputLength) {
+            return text
+        }
+        return text.substring(text.length - maxOutputLength)
+    }
+
+    private fun truncateDocumentBeginning(symbolsToRemove: Int) {
+        if (symbolsToRemove > 0) {
+            document.remove(0, min(symbolsToRemove, text.length))
+        }
     }
 
     fun println(text: String) = appendText(text + "\n", Color.black)
