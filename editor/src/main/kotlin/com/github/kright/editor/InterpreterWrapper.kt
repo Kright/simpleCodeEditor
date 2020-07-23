@@ -36,7 +36,7 @@ class InterpreterWrapper {
                     stopCallback(result)
                     return@thread
                 }
-                output.error("run ${code}")
+                output.error("run")
 
                 val inputStream = BufferedReader(InputStreamReader(process.inputStream))
                 val errorStream = BufferedReader(InputStreamReader(process.errorStream))
