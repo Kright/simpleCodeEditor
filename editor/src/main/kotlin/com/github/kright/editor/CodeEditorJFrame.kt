@@ -6,10 +6,9 @@ import java.io.File
 import javax.swing.*
 
 class CodeEditorJFrame : JFrame("code editor") {
-    val menuBar: EditorMenuBar
-    val codeEditor: CodeEditor
-    val programOutput: ProgramOutput
-
+    private val menuBar: EditorMenuBar
+    private val codeEditor: CodeEditor
+    private val programOutput: ProgramOutput
     private val lock = Object()
 
     private var interpreterWrapper: InterpreterWrapper? = null
@@ -41,7 +40,7 @@ class CodeEditorJFrame : JFrame("code editor") {
             JSplitPane.VERTICAL_SPLIT,
             JScrollPane(codeEditor).apply {
                 minimumSize = Dimension(200, 100)
-                preferredSize = Dimension(800, 600 )
+                preferredSize = Dimension(800, 600)
             },
             JScrollPane(programOutput).apply {
                 minimumSize = Dimension(200, 50)
@@ -61,7 +60,7 @@ class CodeEditorJFrame : JFrame("code editor") {
         isVisible = true
     }
 
-    fun menuOpenFile() {
+    internal fun menuOpenFile() {
         JFileChooser(codeEditor.currentFile?.parentFile).apply {
             dialogTitle = "select file to open"
             when (showOpenDialog(this)) {
@@ -71,7 +70,7 @@ class CodeEditorJFrame : JFrame("code editor") {
         }
     }
 
-    fun menuSaveAs(): File? {
+    internal fun menuSaveAs(): File? {
         JFileChooser(codeEditor.currentFile?.parentFile).apply {
             dialogTitle = "select file to save"
             codeEditor.currentFile?.let {
@@ -84,7 +83,7 @@ class CodeEditorJFrame : JFrame("code editor") {
         }
     }
 
-    fun menuRunOrStop() {
+    internal fun menuRunOrStop() {
         synchronized(lock) {
             if (interpreterWrapper != null) {
                 interpreterWrapper = null
@@ -112,14 +111,17 @@ class CodeEditorJFrame : JFrame("code editor") {
         }
     }
 
-    fun menuSave(): File? {
+    internal fun menuSave(): File? {
         codeEditor.currentFile?.let {
             return codeEditor.saveToFile(it)
         }
         return null
     }
 
-    fun menuClose() {
+    internal fun menuClose() {
         dispatchEvent(WindowEvent(this, WindowEvent.WINDOW_CLOSING))
     }
+
+    internal fun setHasSaveOption(hasOption: Boolean) =
+        menuBar.setHasSaveOption(hasOption)
 }

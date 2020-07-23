@@ -7,7 +7,7 @@ import javax.swing.JMenuItem
 
 class EditorMenuBar(private val editor: CodeEditorJFrame) : JMenuBar() {
 
-    val saveItem: JMenuItem
+    private val saveItem: JMenuItem
     private val runButton: JButton
     private val stopButton: JButton
 
@@ -19,6 +19,10 @@ class EditorMenuBar(private val editor: CodeEditorJFrame) : JMenuBar() {
             runButton.isVisible = true
             stopButton.isVisible = false
         }
+    }
+
+    fun setHasSaveOption(hasOption: Boolean) {
+        saveItem.isVisible = hasOption
     }
 
     init {

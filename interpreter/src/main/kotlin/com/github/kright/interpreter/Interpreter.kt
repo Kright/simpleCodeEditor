@@ -9,7 +9,7 @@ class Interpreter(private val output: Output = Output.default()) {
     private val state = InterpreterState(out = output)
     private val astChecker = AstChecker(operators = state.operators, functions = state.functions)
 
-    fun parse(code: String): Program? {
+    private fun parse(code: String): Program? {
         return try {
             val program = parser.parseToEnd(code)
             // code parsing doesn't change interpreter state.
@@ -26,7 +26,7 @@ class Interpreter(private val output: Output = Output.default()) {
         }
     }
 
-    fun run(program: Program): Boolean {
+    private fun run(program: Program): Boolean {
         return try {
             for (statement in program.statements) {
                 // list of declared variables in astChecker and state will be consistent

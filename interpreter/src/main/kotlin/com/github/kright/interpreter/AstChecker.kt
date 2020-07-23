@@ -12,7 +12,7 @@ class AstChecker(
     }
 
     fun copy(): AstChecker = AstChecker(
-        variables = variables.clone() as HashMap<Id, TType>,
+        variables = HashMap(variables),
         operators = operators,
         functions = functions
     )
